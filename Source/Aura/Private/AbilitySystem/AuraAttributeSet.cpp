@@ -2,12 +2,17 @@
 
 
 #include "AbilitySystem/AuraAttributeSet.h"
-#include "AbilitySystemComponent.h"
+
 #include <Net/UnrealNetwork.h>
 
+// Use / ShowDebug AbilitySystem / in the cmd in UEEditor to show the attributes and more like the owner and avatar
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
+	InitHealth(100.f); // From ATTRIBUTE_ACCESSORS macro
+	InitMaxHealth(100.f);
+	InitMana(150.f);
+	InitMaxMana(150.f);
 }
 
 void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
