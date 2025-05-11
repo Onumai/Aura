@@ -86,8 +86,11 @@ void AAuraPlayerController::BeginPlay()
 	check(AuraContext);
 	// Create the Enhanced Input Subsystem and add the mapping context.
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	check(Subsystem);
-	Subsystem->AddMappingContext(AuraContext, 0);
+	if (Subsystem) // if check for multiplayer support
+	{
+		Subsystem->AddMappingContext(AuraContext, 0);
+	}
+	
 
 	//CursorSettings
 	bShowMouseCursor = true;
