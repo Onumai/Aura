@@ -28,6 +28,12 @@ enum class EEffectRemovalPolicy : uint8
 	DoNotRemove
 };
 
+USTRUCT(BlueprintType)
+struct FGameplayEffectStruct
+{
+	GENERATED_BODY()
+
+};
 
 UCLASS()
 class AURA_API AAuraEffectActor : public AActor
@@ -55,26 +61,50 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	bool bDestroyOnEffectRemoval = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	TSubclassOf<UGameplayEffect> InstantGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	TArray<TSubclassOf<UGameplayEffect>> InstantGameplayEffectClasses;
+
 
 	UPROPERTY(EditAnywhere, Category = "Applied Effects")
 	EEffectApplicationPolicy InstantEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+
+
+
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	TSubclassOf<UGameplayEffect> DurationGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	TArray<TSubclassOf<UGameplayEffect>> DurationGameplayEffectClasses;
+
 
 	UPROPERTY(EditAnywhere, Category = "Applied Effects")
 	EEffectApplicationPolicy DurationEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+
+
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	TSubclassOf<UGameplayEffect> InfiniteGameplayEffectClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	TArray<TSubclassOf<UGameplayEffect>> InfiniteGameplayEffectClasses;
+
 
 	UPROPERTY(EditAnywhere, Category = "Applied Effects")
 	EEffectApplicationPolicy InfiniteEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 
 	UPROPERTY(EditAnywhere, Category = "Applied Effects")
 	EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
+
+
+
 
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles;
 

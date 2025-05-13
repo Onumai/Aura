@@ -44,39 +44,64 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 
 }
 
-void AAuraEffectActor::OnOverlap(AActor* TargetActor)
-{
-	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
-	{
-		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
-	}
+void AAuraEffectActor::OnOverlap(AActor* TargetActor)  
+{  
+   if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&  
+       InstantGameplayEffectClasses.Num() != 0)  
+   {  
+       for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InstantGameplayEffectClasses)  
+       {  
+           ApplyEffectToTarget(TargetActor, GameplayEffectClass);  
+       }  
+   }  
 
-	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
-	{
-		ApplyEffectToTarget(TargetActor, DurationGameplayEffectClass);
-	}
+   if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
+	   DurationGameplayEffectClasses.Num() != 0)
+   {
+	   for (TSubclassOf<UGameplayEffect> GameplayEffectClass : DurationGameplayEffectClasses)
+	   {
+		   ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+	   }
+   }
 
-	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
-	{
-		ApplyEffectToTarget(TargetActor, InfiniteGameplayEffectClass);
-	}
+   if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
+	   InfiniteGameplayEffectClasses.Num() != 0)
+   {
+	   for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InfiniteGameplayEffectClasses)
+	   {
+		   ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+	   }
+   }
+  
 }
 
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 {
-	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
+	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap &&
+		InstantGameplayEffectClasses.Num() != 0)
 	{
-		ApplyEffectToTarget(TargetActor, InstantGameplayEffectClass);
+		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InstantGameplayEffectClasses)
+		{
+			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+		}
 	}
 
-	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
+	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap &&
+		DurationGameplayEffectClasses.Num() != 0)
 	{
-		ApplyEffectToTarget(TargetActor, DurationGameplayEffectClass);
+		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : DurationGameplayEffectClasses)
+		{
+			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+		}
 	}
 
-	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
+	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap &&
+		InfiniteGameplayEffectClasses.Num() != 0)
 	{
-		ApplyEffectToTarget(TargetActor, InfiniteGameplayEffectClass);
+		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InfiniteGameplayEffectClasses)
+		{
+			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+		}
 	}
 
 	if (InfiniteEffectRemovalPolicy == EEffectRemovalPolicy::RemoveOnEndOverlap)
