@@ -41,7 +41,6 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 	{
 		ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
 	}
-
 }
 
 void AAuraEffectActor::OnOverlap(AActor* TargetActor)  
@@ -49,7 +48,7 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
    if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&  
        InstantGameplayEffectClasses.Num() != 0)  
    {  
-       for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InstantGameplayEffectClasses)  
+       for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InstantGameplayEffectClasses)  
        {  
            ApplyEffectToTarget(TargetActor, GameplayEffectClass);  
        }  
@@ -58,7 +57,7 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
    if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
 	   DurationGameplayEffectClasses.Num() != 0)
    {
-	   for (TSubclassOf<UGameplayEffect> GameplayEffectClass : DurationGameplayEffectClasses)
+	   for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : DurationGameplayEffectClasses)
 	   {
 		   ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 	   }
@@ -67,12 +66,11 @@ void AAuraEffectActor::OnOverlap(AActor* TargetActor)
    if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
 	   InfiniteGameplayEffectClasses.Num() != 0)
    {
-	   for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InfiniteGameplayEffectClasses)
+	   for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InfiniteGameplayEffectClasses)
 	   {
 		   ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 	   }
-   }
-  
+   } 
 }
 
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
@@ -80,7 +78,7 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap &&
 		InstantGameplayEffectClasses.Num() != 0)
 	{
-		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InstantGameplayEffectClasses)
+		for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InstantGameplayEffectClasses)
 		{
 			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 		}
@@ -89,7 +87,7 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap &&
 		DurationGameplayEffectClasses.Num() != 0)
 	{
-		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : DurationGameplayEffectClasses)
+		for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : DurationGameplayEffectClasses)
 		{
 			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 		}
@@ -98,7 +96,7 @@ void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
 	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap &&
 		InfiniteGameplayEffectClasses.Num() != 0)
 	{
-		for (TSubclassOf<UGameplayEffect> GameplayEffectClass : InfiniteGameplayEffectClasses)
+		for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InfiniteGameplayEffectClasses)
 		{
 			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
 		}
