@@ -70,7 +70,7 @@ protected:
 	TArray<TSubclassOf<UGameplayEffect>> InstantGameplayEffectClasses;
 
 
-	UPROPERTY(EditAnywhere, Category = "Applied Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	EEffectApplicationPolicy InstantEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 
 
@@ -84,7 +84,7 @@ protected:
 	TArray<TSubclassOf<UGameplayEffect>> DurationGameplayEffectClasses;
 
 
-	UPROPERTY(EditAnywhere, Category = "Applied Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	EEffectApplicationPolicy DurationEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 
 
@@ -97,15 +97,20 @@ protected:
 	TArray<TSubclassOf<UGameplayEffect>> InfiniteGameplayEffectClasses;
 
 
-	UPROPERTY(EditAnywhere, Category = "Applied Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	EEffectApplicationPolicy InfiniteEffectApplicationPolicy = EEffectApplicationPolicy::DoNotApply;
 
-	UPROPERTY(EditAnywhere, Category = "Applied Effects")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
 	EEffectRemovalPolicy InfiniteEffectRemovalPolicy = EEffectRemovalPolicy::RemoveOnEndOverlap;
 
 
 
 
 	TMap<FActiveGameplayEffectHandle, UAbilitySystemComponent*> ActiveEffectHandles;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Applied Effects")
+	float ActorLevel = 1.f;
+
+
 
 };
