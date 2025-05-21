@@ -19,5 +19,5 @@ public:
 	virtual void OnRep_PlayerState() override; 
 
 private:
-	void InitAbilityActorInfo(); // Initialize the ability actor info for the character
+	virtual void InitAbilityActorInfo() override; // Initialize the ability actor info for the character
 };
