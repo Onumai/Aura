@@ -9,6 +9,10 @@
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssestTags, const FGameplayTagContainer& /* AssetTags*/);
 
 
+
+
+
+
 /**
  * 
  */
