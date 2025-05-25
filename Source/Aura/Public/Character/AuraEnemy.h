@@ -24,6 +24,12 @@ public:
 	/* end Enemy Interface*/
 
 
+	/* Combat Interface*/
+
+	virtual int32 GetPlayerLevel() override;
+
+	/* End Combat Interface*/
+
 	UPROPERTY(BlueprintReadOnly)
 	bool bHighlighted = false; // Flag to check if the actor is highlighted or not.
 
@@ -31,4 +37,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void InitAbilityActorInfo() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
+	int32 Level = 1;
+	
 };
