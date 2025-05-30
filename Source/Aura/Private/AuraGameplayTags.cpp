@@ -67,7 +67,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		);
 
 	GameplayTags.Attributes_Secondary_HealthRegenaration = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Attributes.Secondary.HealthRengenration"),
+		FName("Attributes.Secondary.HealthRegenaration"),
 		FString("Amount of Health regenerated every 1 second")
 		);
 

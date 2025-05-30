@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
-#include <GameplayEffectTypes.h>
+#include "GameplayTagContainer.h"
 #include "AttributeInfo.generated.h"
 
 
@@ -24,11 +24,7 @@ struct FAuraAttributeInfo
 
 	UPROPERTY(BlueprintReadOnly) // Not exposed to the editor, don't want to allow editing of this value
 	float AttributeValue = 0.f; // This is the current value of the attribute, e.g. 10 for Strength
-
-
 };
-
-
 
 /**
  * 
@@ -45,6 +41,5 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TArray<FAuraAttributeInfo> AttributeInformation; // This is the array of attributes, e.g. Strength, Intelligence, etc.>
-
 
 };
