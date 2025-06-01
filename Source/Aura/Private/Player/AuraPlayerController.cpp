@@ -3,8 +3,8 @@
 
 #include "Player/AuraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
-#include <EnhancedInputComponent.h>
-#include <Interaction/EnemyInterface.h>
+#include "Interaction/EnemyInterface.h"
+#include "Input/AuraInputComponent.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -79,6 +79,21 @@ void AAuraPlayerController::CursorTrace()
 
 }
 
+void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
+}
+
+void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Blue, *InputTag.ToString());
+}
+
+void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
+{
+	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, *InputTag.ToString());
+}
+
 void AAuraPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -107,10 +122,11 @@ void AAuraPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	
 	// Check if the input component is of type UEnhancedInputComponent
-	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent); // CastChecked ensures that the cast is valid and will assert if it fails.
+	UAuraInputComponent* AuraInputComponent = CastChecked<UAuraInputComponent>(InputComponent); // CastChecked ensures that the cast is valid and will assert if it fails.
 	
 	//Bind the MoveAction to the Move function using the Enhanced Input Component.
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AAuraPlayerController::Move);
+	AuraInputComponent->BindAbilityActions(InputConfig, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)

@@ -4,12 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "GameplayTagContainer.h"
 #include "AuraPlayerController.generated.h"
 
-class UInputMappingContext;
+
 class UInputAction;
 struct FInputActionValue;
 class IEnemyInterface;
+class UAuraInputConfig;
+class UInputMappingContext;
+
 /**
  * 
  */
@@ -38,4 +42,11 @@ private:
 	// TSriptInterface is a way to store a reference to an object that implements a specific interface.
 	TScriptInterface<IEnemyInterface> LastActor;
 	TScriptInterface<IEnemyInterface> ThisActor;
+
+	void AbilityInputTagPressed(FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(FGameplayTag InputTag);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UAuraInputConfig> InputConfig;
 };
