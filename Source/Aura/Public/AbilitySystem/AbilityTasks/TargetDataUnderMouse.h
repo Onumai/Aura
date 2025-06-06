@@ -7,7 +7,7 @@
 #include "TargetDataUnderMouse.generated.h"
 
 //Because CreateTargetDataUnderMouse is Async, we need to use a dynamic multicast delegate to allow binding in Blueprints as exceuction pins are not supported in Async tasks
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FVector&, Data);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FGameplayAbilityTargetDataHandle&, DataHandle);
 
 class AuraPlayerController;
 /**
@@ -31,4 +31,5 @@ private:
 
 	virtual void Activate() override;
 
+	void SendMouseCursorData();
 };
