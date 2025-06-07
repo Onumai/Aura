@@ -20,7 +20,7 @@ void UAuraAssetManager::StartInitialLoading()
 
 	FAuraGameplayTags::InitializeNativeGameplayTags();
 
-	// This is required to use Target Data!
+	// This is required to use Target Data in AbilityTasks!
 	UAbilitySystemGlobals::Get().InitGlobalData();
 
 }
