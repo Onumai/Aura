@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/AudioComponent.h"
+#include "Aura/Aura.h"
+
 
 AAuraProjectile::AAuraProjectile()
 {
@@ -15,6 +17,7 @@ AAuraProjectile::AAuraProjectile()
 
 	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
 	SetRootComponent(Sphere); // Set the sphere as the root component of the actor
+	Sphere->SetCollisionObjectType(ECC_Projectile); // Custom ObjectType in Aura.h
 	Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly); // Enable collision for overlap events
 	Sphere->SetCollisionResponseToAllChannels(ECR_Ignore); // Ignore all channels by default
 	Sphere->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap); // Enable overlap for dynamic world objects
