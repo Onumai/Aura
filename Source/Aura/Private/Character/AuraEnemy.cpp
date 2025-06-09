@@ -2,9 +2,11 @@
 
 
 #include "Character/AuraEnemy.h"
-#include <Aura/Aura.h>
-#include <AbilitySystem/AuraAbilitySystemComponent.h>
-#include <AbilitySystem/AuraAttributeSet.h>
+#include "Aura/Aura.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/AuraAttributeSet.h"
+#include "Components/WidgetComponent.h"
+#include "UI/Widget/AuraUserWidget.h"
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -14,8 +16,10 @@ AAuraEnemy::AAuraEnemy()
 	AbilitySystemComponent->SetIsReplicated(true); // Enables replication for this property, ensuring it stays synchronized across server and clients.
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal); // Set the replication mode to mixed, which means that the server will replicate the effects to clients, but clients will also be able to apply effects to themselves without waiting for the server to do so.
 
-
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
+
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar"); // Creates a widget component for the health bar.
+	HealthBar->SetupAttachment(GetRootComponent()); // Attaches the health bar widget to the root component of the actor.
 }
 
 void AAuraEnemy::HighlightActor()
@@ -43,6 +47,33 @@ void AAuraEnemy::BeginPlay()
 
 	InitAbilityActorInfo();
 
+	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject()))
+	{
+		AuraUserWidget->SetWidgetController(this);
+	}
+
+	// Cast the AttributeSet to UAuraAttributeSet to access specific attributes.
+	if (const UAuraAttributeSet* AuraAS = Cast<UAuraAttributeSet>(AttributeSet))
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetHealthAttribute()).AddLambda(
+				[this](const FOnAttributeChangeData& Data)
+			{
+				OnHealthChanged.Broadcast(Data.NewValue); // Broadcasts the OnHealthChanged event with the new health values.
+			}
+		);
+
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAS->GetMaxHealthAttribute()).AddLambda(
+			[this](const FOnAttributeChangeData& Data)
+			{
+				OnMaxHealthChanged.Broadcast(Data.NewValue); // Broadcasts the OnHealthChanged event with the new maxhealth values.
+			}
+		);
+
+		OnHealthChanged.Broadcast(AuraAS->GetHealth()); // Broadcasts the OnHealthChanged event with the current health value.
+		OnMaxHealthChanged.Broadcast(AuraAS->GetMaxHealth()); // Broadcasts the OnMaxHealthChanged event with the current max health value.
+	}
+	
+	
 }
 
 void AAuraEnemy::InitAbilityActorInfo()
