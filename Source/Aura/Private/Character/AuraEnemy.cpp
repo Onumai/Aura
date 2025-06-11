@@ -8,6 +8,8 @@
 #include "Components/WidgetComponent.h"
 #include "UI/Widget/AuraUserWidget.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
+#include "AuraGameplayTags.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -45,6 +47,7 @@ int32 AAuraEnemy::GetPlayerLevel()
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
 	InitAbilityActorInfo();
 
@@ -70,11 +73,24 @@ void AAuraEnemy::BeginPlay()
 			}
 		);
 
+		
+		AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(
+			this,
+			&AAuraEnemy::HitReactTagChanged
+		);
+
 		OnHealthChanged.Broadcast(AuraAS->GetHealth()); // Broadcasts the OnHealthChanged event with the current health value.
 		OnMaxHealthChanged.Broadcast(AuraAS->GetMaxHealth()); // Broadcasts the OnMaxHealthChanged event with the current max health value.
 	}
 	
 	
+}
+
+void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0; // Check if the hit react tag is active based on the count.
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed; // If hit reacting, set the walk speed to 0, otherwise set it to the default walk speed.
+
 }
 
 void AAuraEnemy::InitAbilityActorInfo()

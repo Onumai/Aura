@@ -13,6 +13,8 @@ class UCombatInterface : public UInterface
 	GENERATED_BODY()
 };
 
+class UAnimMontage;
+
 /**
  * 
  */
@@ -29,5 +31,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable) // Not virtual because BlueprintImplementableEvent
 	void UpdateFacingTarget(const FVector& Target);
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) // BlueprintNativeEvent to allow both C++ and BP implementations
+	UAnimMontage* GetHitReactMontage();
 
 };

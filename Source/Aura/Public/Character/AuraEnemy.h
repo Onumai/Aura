@@ -44,6 +44,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bHighlighted = false; // Flag to check if the actor is highlighted or not.
 
+	void HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	bool bHitReacting = false; // Flag to check if the actor is hit reacting or not.
+
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	float BaseWalkSpeed = 250.0f; // Default base walk speed for the enemy character
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -59,5 +67,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
+	
+
 	
 };
