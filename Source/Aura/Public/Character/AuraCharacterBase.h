@@ -27,6 +27,11 @@ public:
 
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; // Override this to provide a hit reaction montage
 
+	virtual void Die() override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void MulticastHandleDeath();
+
 protected:
 	virtual void BeginPlay() override;
 

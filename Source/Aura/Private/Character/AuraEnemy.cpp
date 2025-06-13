@@ -44,6 +44,13 @@ int32 AAuraEnemy::GetPlayerLevel()
 	return Level;
 }
 
+void AAuraEnemy::Die()
+{	
+	SetLifeSpan(LifeSpan); // Sets a lifespan of 5 seconds for the actor before it is destroyed.
+	Super::Die();
+
+}
+
 void AAuraEnemy::BeginPlay()
 {
 	Super::BeginPlay(); 

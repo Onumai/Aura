@@ -35,4 +35,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable) // BlueprintNativeEvent to allow both C++ and BP implementations
 	UAnimMontage* GetHitReactMontage();
 
+	virtual void Die() = 0;
+
 };
