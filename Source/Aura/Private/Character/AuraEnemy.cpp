@@ -46,14 +46,15 @@ int32 AAuraEnemy::GetPlayerLevel()
 
 void AAuraEnemy::BeginPlay()
 {
-	Super::BeginPlay();
+	Super::BeginPlay(); 
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
-	InitAbilityActorInfo();
+	InitAbilityActorInfo(); // Initializes the ability actor info, which includes setting up the ability system component and default attributes.
+	UAuraAbilitySystemLibrary::GiveStartupAbilites(this, AbilitySystemComponent); // Grants the startup abilities to the actor using the AuraAbilitySystemLibrary.
 
-	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject()))
+	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject())) 
 	{
-		AuraUserWidget->SetWidgetController(this);
+		AuraUserWidget->SetWidgetController(this); 
 	}
 
 	// Cast the AttributeSet to UAuraAttributeSet to access specific attributes.
