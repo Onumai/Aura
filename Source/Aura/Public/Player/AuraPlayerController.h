@@ -15,6 +15,7 @@ class UAuraInputConfig;
 class UInputMappingContext;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
+class UDamageTextComponent;
 
 /**
  * 
@@ -26,6 +27,9 @@ class AURA_API AAuraPlayerController : public APlayerController
 public:
 	AAuraPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
+
+	UFUNCTION(Client, Reliable) // Sends a damage number to the client to display it on the screen
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
 
 protected:
 	virtual void BeginPlay() override;	
@@ -84,4 +88,6 @@ private:
 
 	void AutoRun();
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };

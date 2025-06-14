@@ -11,6 +11,8 @@
 #include "AuraGameplayTags.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
+#include "Gameframework/Character.h"
+#include "UI/Widget/DamageTextComponent.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -27,6 +29,18 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 	CursorTrace();
 	AutoRun();
 
+}
+
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+{
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
+	{
+		UDamageTextComponent* DamageText  = NewObject<UDamageTextComponent>(TargetCharacter, DamageTextComponentClass); 
+		DamageText->RegisterComponent(); // Register the component to make it active in the world.
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform); // Attach the damage text to the character's root component.
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform); // Detach it to allow it to move freely in the world.
+		DamageText->SetDamageText(DamageAmount); // Set the damage text to be displayed.
+	}
 }
 
 void AAuraPlayerController::AutoRun()
