@@ -1,3 +1,5 @@
+// Copyright Patrick Haubner
+
 #pragma once
 
 #include "GameplayEffectTypes.h"
@@ -39,7 +41,7 @@ public:
 	/** Custom serialization, subclasses must override this */
 	virtual bool NetSerialize(FArchive& Ar, class UPackageMap* Map, bool& bOutSuccess);
 
-	
+
 
 protected:
 
@@ -60,3 +62,4 @@ struct TStructOpsTypeTraits<FAuraGameplayEffectContext> : public TStructOpsTypeT
 		WithCopy = true
 	};
 };
+

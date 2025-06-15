@@ -1,3 +1,5 @@
+// Copyright Patrick Haubner
+
 
 #include "AuraAbilityTypes.h"
 
@@ -5,7 +7,7 @@
 bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess)
 {
 	uint32 RepBits = 0;
-	if(Ar.IsSaving())
+	if (Ar.IsSaving())
 	{
 		if (bReplicateInstigator && Instigator.IsValid())
 		{
@@ -105,5 +107,3 @@ bool FAuraGameplayEffectContext::NetSerialize(FArchive& Ar, UPackageMap* Map, bo
 
 	return true;
 }
-
-	
