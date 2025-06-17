@@ -22,7 +22,7 @@ public:
 	/** Returns the actual struct used for serialization, subclasses must override this! */
 	virtual UScriptStruct* GetScriptStruct() const
 	{
-		return StaticStruct();
+		return FGameplayEffectContext::StaticStruct();
 	}
 
 	/** Creates a copy of this context, used to duplicate for later modifications */
@@ -58,7 +58,7 @@ struct TStructOpsTypeTraits<FAuraGameplayEffectContext> : public TStructOpsTypeT
 {
 	enum
 	{
-		WitNetSerializer = true,
+		WithNetSerializer = true,
 		WithCopy = true
 	};
 };

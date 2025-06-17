@@ -31,7 +31,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 
 }
 
-void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
 {
 	if (IsValid(TargetCharacter) && DamageTextComponentClass)
 	{
@@ -39,7 +39,7 @@ void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, 
 		DamageText->RegisterComponent(); // Register the component to make it active in the world.
 		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform); // Attach the damage text to the character's root component.
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform); // Detach it to allow it to move freely in the world.
-		DamageText->SetDamageText(DamageAmount); // Set the damage text to be displayed.
+		DamageText->SetDamageText(DamageAmount, bBlockedHit, bCriticalHit); // Set the damage text to be displayed.
 	}
 }
 

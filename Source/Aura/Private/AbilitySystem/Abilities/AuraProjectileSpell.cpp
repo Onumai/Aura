@@ -46,20 +46,20 @@ void UAuraProjectileSpell::SpawnProjectile(const FVector& ProjectileTargetLocati
 
 		const UAbilitySystemComponent* SourceASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetAvatarActorFromActorInfo());
 
-		FGameplayEffectContextHandle EffectContectHandle = SourceASC->MakeEffectContext();
-		EffectContectHandle.SetAbility(this);
-		EffectContectHandle.AddSourceObject(Projectile);
+		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+		EffectContextHandle.SetAbility(this);
+		EffectContextHandle.AddSourceObject(Projectile);
 		TArray<TWeakObjectPtr<AActor>> Actors;
 		Actors.Add(Projectile);
-		EffectContectHandle.AddActors(Actors);
+		EffectContextHandle.AddActors(Actors);
 		FHitResult HitResult;
 		HitResult.Location = ProjectileTargetLocation;
-		EffectContectHandle.AddHitResult(HitResult);
+		EffectContextHandle.AddHitResult(HitResult);
 
-		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContectHandle);
+		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
 		
 		const FAuraGameplayTags GameplayTags = FAuraGameplayTags::Get();
-		const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
+		const float ScaledDamage = Damage.GetValueAtLevel(10);
 
 		UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Damage, ScaledDamage);
 		Projectile->DamageEffectSpecHandle = SpecHandle;
