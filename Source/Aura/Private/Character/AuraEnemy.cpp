@@ -57,7 +57,11 @@ void AAuraEnemy::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 
 	InitAbilityActorInfo(); // Initializes the ability actor info, which includes setting up the ability system component and default attributes.
-	UAuraAbilitySystemLibrary::GiveStartupAbilites(this, AbilitySystemComponent); // Grants the startup abilities to the actor using the AuraAbilitySystemLibrary.
+	if (HasAuthority())
+	{
+		UAuraAbilitySystemLibrary::GiveStartupAbilites(this, AbilitySystemComponent); // Grants the startup abilities to the actor using the AuraAbilitySystemLibrary.
+	}
+	
 
 	if (UAuraUserWidget* AuraUserWidget = Cast<UAuraUserWidget>(HealthBar->GetUserWidgetObject())) 
 	{
@@ -107,7 +111,11 @@ void AAuraEnemy::InitAbilityActorInfo()
 
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
-	InitializeDefaultAttributes();
+	if (HasAuthority())
+	{
+		InitializeDefaultAttributes();
+	}
+	
 }
 
 void AAuraEnemy::InitializeDefaultAttributes() const
