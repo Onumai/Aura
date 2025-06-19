@@ -26,6 +26,12 @@ AAuraEnemy::AAuraEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar"); // Creates a widget component for the health bar.
 	HealthBar->SetupAttachment(GetRootComponent()); // Attaches the health bar widget to the root component of the actor.
+
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationRoll = false;
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bUseControllerDesiredRotation = true; // For smoother movement rotation of the enemy to a location.
+
 }
 
 void AAuraEnemy::PossessedBy(AController* NewController)

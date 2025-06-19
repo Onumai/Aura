@@ -27,6 +27,8 @@ void AAuraEffectActor::BeginPlay()
 
 void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGameplayEffect> GameplayEffectClass)
 {
+	if (TargetActor->ActorHasTag(FName("Enemy")) && !bApplyEffectsToEnemies) return;
+
 	UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	if (TargetASC == nullptr) return;
 
@@ -41,36 +43,43 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 	{
 		ActiveEffectHandles.Add(ActiveEffectHandle, TargetASC);
 	}
+
+	if (!bIsInfinite)
+	{
+		Destroy();
+	}
 }
 
 void AAuraEffectActor::OnOverlap(AActor* TargetActor)  
 {  
-   if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&  
+	if (TargetActor->ActorHasTag(FName("Enemy")) && !bApplyEffectsToEnemies) return;
+
+	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&  
        InstantGameplayEffectClasses.Num() != 0)  
-   {  
-       for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InstantGameplayEffectClasses)  
-       {  
-           ApplyEffectToTarget(TargetActor, GameplayEffectClass);  
-       }  
-   }  
+	{  
+		for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InstantGameplayEffectClasses)  
+		{  
+			ApplyEffectToTarget(TargetActor, GameplayEffectClass);  
+		}  
+	}  
 
-   if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
-	   DurationGameplayEffectClasses.Num() != 0)
-   {
-	   for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : DurationGameplayEffectClasses)
-	   {
-		   ApplyEffectToTarget(TargetActor, GameplayEffectClass);
-	   }
-   }
+	if (DurationEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
+		DurationGameplayEffectClasses.Num() != 0)
+	{
+		for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : DurationGameplayEffectClasses)
+		{
+			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+		}
+	}
 
-   if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
-	   InfiniteGameplayEffectClasses.Num() != 0)
-   {
-	   for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InfiniteGameplayEffectClasses)
-	   {
-		   ApplyEffectToTarget(TargetActor, GameplayEffectClass);
-	   }
-   } 
+	if (InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap &&
+		InfiniteGameplayEffectClasses.Num() != 0)
+	{
+		for (TSubclassOf<UGameplayEffect>& GameplayEffectClass : InfiniteGameplayEffectClasses)
+		{
+			ApplyEffectToTarget(TargetActor, GameplayEffectClass);
+		}
+	} 
 }
 
 void AAuraEffectActor::OnEndOverlap(AActor* TargetActor)
