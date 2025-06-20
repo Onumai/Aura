@@ -24,4 +24,10 @@ class AURA_API IEnemyInterface
 public:
 	virtual void HighlightActor() = 0; // Pure virtual function to be implemented by the inheriting class.
 	virtual void UnHighlightActor() = 0; // Pure virtual function to be implemented by the inheriting class.
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void SetCombatTarget(AActor* InCombatTarget);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	AActor* GetCombatTarget() const;
 };
