@@ -81,7 +81,7 @@ void AAuraEnemy::BeginPlay()
 	InitAbilityActorInfo(); // Initializes the ability actor info, which includes setting up the ability system component and default attributes.
 	if (HasAuthority())
 	{
-		UAuraAbilitySystemLibrary::GiveStartupAbilites(this, AbilitySystemComponent); // Grants the startup abilities to the actor using the AuraAbilitySystemLibrary.
+		UAuraAbilitySystemLibrary::GiveStartupAbilites(this, AbilitySystemComponent, CharacterClass); // Grants the startup abilities to the actor using the AuraAbilitySystemLibrary.
 	}
 	
 
