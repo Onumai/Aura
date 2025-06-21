@@ -55,7 +55,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bHitReacting = false; // Flag to check if the actor is hit reacting or not.
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float BaseWalkSpeed = 250.0f; // Default base walk speed for the enemy character
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
