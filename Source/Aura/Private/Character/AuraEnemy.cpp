@@ -69,6 +69,8 @@ int32 AAuraEnemy::GetPlayerLevel()
 void AAuraEnemy::Die()
 {	
 	SetLifeSpan(LifeSpan); // Sets a lifespan of 5 seconds for the actor before it is destroyed.
+
+	if(AuraAIController) AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Dead"), true);
 	Super::Die();
 
 }
