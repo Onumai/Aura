@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "Interaction/CombatInterface.h"
 #include "Abilities/GameplayAbility.h"
+#include "Components/CapsuleComponent.h"
 #include "AuraCharacterBase.generated.h"
 
 
@@ -38,6 +39,7 @@ public:
 	virtual FTaggedMontage GetTaggedMontageByTag_Implementation(const FGameplayTag& MontageTag) override;
 	virtual int32 GetMinionCount_Implementation() override;
 	virtual void IncrementMinionCount_Implementation(int32 Amount) override;
+	FORCEINLINE virtual float GetHalfHeight() const override { return GetCapsuleComponent()->GetScaledCapsuleHalfHeight(); }
 	/* End Combat Interface*/
 
 	

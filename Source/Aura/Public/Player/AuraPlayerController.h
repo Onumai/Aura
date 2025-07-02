@@ -16,6 +16,7 @@ class UInputMappingContext;
 class UAuraAbilitySystemComponent;
 class USplineComponent;
 class UDamageTextComponent;
+class UNavigationSystemV1;
 
 /**
  * 
@@ -34,6 +35,7 @@ public:
 protected:
 	virtual void BeginPlay() override;	
 	virtual void SetupInputComponent() override;
+	
 private:
 	UPROPERTY(EditAnywhere, Category = "Input")
 	TObjectPtr<UInputMappingContext> AuraContext;
@@ -80,6 +82,14 @@ private:
 	bool bAutoRunning = false;
 	bool bTargeting = false;
 
+	UPROPERTY()
+	TObjectPtr<UNavigationSystemV1> NavSystem;
+
+	UPROPERTY(EditDefaultsOnly)
+	bool bDrawDebugEnabled = false;
+
+	int32 TargetSplinePointIdx = 0;
+
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
 
@@ -88,6 +98,12 @@ private:
 
 	void AutoRun();
 
+	float ControlledPawnHalfHeight = 0.f;
+
+	bool GetCursorPlaneIntersection(const FVector& InPlaneOrigin, const FVector& InPlaneNormal, FVector& OutPlanePoint) const;
+
+	bool GetScreenPositionPlaneIntersection(const FVector2D& ScreenPosition, const FVector& InPlaneOrigin, const FVector& InPlaneNormal, FVector& OutPlanePoint) const;
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UDamageTextComponent> DamageTextComponentClass;
 };
