@@ -24,5 +24,5 @@ public:
 protected:
 
 	UPROPERTY()
-	TObjectPtr<UBehaviorTree> BehaviorTreeComponent;
+	TObjectPtr<UBehaviorTreeComponent> BehaviorTreeComponent;
 };
