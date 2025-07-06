@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "CombatInterface.generated.h"
 
 class UNiagaraSystem;
@@ -83,5 +84,8 @@ public:
 	void IncrementMinionCount(int32 Amount);
 
 	FORCEINLINE virtual float GetHalfHeight() const { return 0.0f; }
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	ECharacterClass GetCharacterClass();
 	
 };

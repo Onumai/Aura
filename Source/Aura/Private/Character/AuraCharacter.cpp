@@ -22,6 +22,7 @@ AAuraCharacter::AAuraCharacter()
 	bUseControllerRotationYaw = false; // Disable controller rotation for yaw	
 	bUseControllerRotationRoll = false; // Disable controller rotation for roll
 
+	CharacterClass = ECharacterClass::Elementalist;
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)
