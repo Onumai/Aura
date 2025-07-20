@@ -23,6 +23,7 @@ public:
 	virtual int32 GetPlayerLevel() override;
 
 	/* End Combat Interface*/
+	
 private:
 	virtual void InitAbilityActorInfo() override; // Initialize the ability actor info for the character
 };
