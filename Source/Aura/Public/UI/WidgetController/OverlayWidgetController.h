@@ -34,8 +34,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float,
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAuraAbilityInfo&, Info);
 
-
-
 /**
  * UOverlayWidgetController is responsible for managing widget-related functionalities
  * and broadcasting updates for gameplay attributes or messages in the Overlay.
