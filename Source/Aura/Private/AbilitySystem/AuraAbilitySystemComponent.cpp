@@ -5,9 +5,12 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "AbilitySystem/Data/AbilityInfo.h"
 #include "Aura/AuraLogChannels.h"
 #include "Interaction/PlayerInterface.h"
+
 
 void UAuraAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -110,7 +113,7 @@ FGameplayTag UAuraAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbi
 	return FGameplayTag();
 }
 
-FGameplayTag UAuraAbilitySystemComponent::GetStatusFromTag(const FGameplayAbilitySpec& AbilitySpec)
+FGameplayTag UAuraAbilitySystemComponent::GetStatusFromSpec(const FGameplayAbilitySpec& AbilitySpec)
 {
 	for (FGameplayTag StatusTag : AbilitySpec.GetDynamicSpecSourceTags())
 	{
@@ -122,6 +125,31 @@ FGameplayTag UAuraAbilitySystemComponent::GetStatusFromTag(const FGameplayAbilit
 	return FGameplayTag();
 }
 
+/**
+ * Retrieves the ability spec associated with the specified ability tag.
+ *
+ * This function iterates through the activatable abilities of the ability system component
+ * and searches for a gameplay ability spec that contains an ability tag matching the provided tag.
+ *
+ * @param AbilityTag The tag used to locate the corresponding gameplay ability spec.
+ * @return A pointer to the FGameplayAbilitySpec associated with the specified tag, or nullptr if no match is found.
+ */
+FGameplayAbilitySpec* UAuraAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability.Get()->AbilityTags)
+		{
+			if (Tag.MatchesTagExact(AbilityTag))
+			{
+				return &AbilitySpec;
+			}
+		}
+	}
+	return nullptr;
+}
+
 void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
 {
 	if (GetAvatarActor()->Implements<UPlayerInterface>())
@@ -129,6 +157,32 @@ void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& Attribute
 		if (IPlayerInterface::Execute_GetAttributePoints(GetAvatarActor()) > 0)
 		{
 			ServerUpgradeAttribute(AttributeTag);
+		}
+	}
+}
+
+/**
+ * Updates the ability statuses based on the provided level. Grants abilities to the actor
+ * if their level requirement is met, and the ability has not already been granted.
+ *
+ * This function retrieves the ability information, evaluates the level requirements of each ability,
+ * and grants the ability if the actor meets the criteria. It also marks the abilities as eligible for activation.
+ *
+ * @param Level The level of the actor used to determine eligibility for abilities.
+ */
+void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
+{
+	UAbilityInfo* AbilityInfo = UAuraAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	for (const FAuraAbilityInfo& Info : AbilityInfo->AbilityInformation)
+	{
+		if (!Info.AbilityTag.IsValid()) continue;
+		if (Level < Info.LevelRequirement) continue;
+		if (GetSpecFromAbilityTag(Info.AbilityTag) == nullptr)
+		{
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Info.Ability, 1);
+			AbilitySpec.GetDynamicSpecSourceTags().AddTag(FAuraGameplayTags::Get().Abilities_Status_Eligible);
+			GiveAbility(AbilitySpec);
+			MarkAbilitySpecDirty(AbilitySpec);
 		}
 	}
 }
