@@ -162,13 +162,14 @@ void UAuraAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& Attribute
 }
 
 /**
- * Updates the ability statuses based on the provided level. Grants abilities to the actor
- * if their level requirement is met, and the ability has not already been granted.
+ * Updates the ability statuses for this component based on the specified level.
  *
- * This function retrieves the ability information, evaluates the level requirements of each ability,
- * and grants the ability if the actor meets the criteria. It also marks the abilities as eligible for activation.
+ * This method evaluates the current level of the actor associated with the ability
+ * system component and updates the statuses of abilities based on their eligibility,
+ * defined by level requirements. If an ability meets the criteria and is not already active,
+ * it dynamically grants the ability, marks it as eligible, and informs the client of the updates.
  *
- * @param Level The level of the actor used to determine eligibility for abilities.
+ * @param Level The current level of the actor, used to determine ability eligibility.
  */
 void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
 {
@@ -183,6 +184,7 @@ void UAuraAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
 			AbilitySpec.GetDynamicSpecSourceTags().AddTag(FAuraGameplayTags::Get().Abilities_Status_Eligible);
 			GiveAbility(AbilitySpec);
 			MarkAbilitySpecDirty(AbilitySpec);
+			ClientUpdateAbilityStatus(Info.AbilityTag, FAuraGameplayTags::Get().Abilities_Status_Eligible);
 		}
 	}
 }
@@ -199,6 +201,12 @@ void UAuraAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FG
 	{
 		IPlayerInterface::Execute_AddToAttributePoints(GetAvatarActor(), -1);
 	}
+}
+
+void UAuraAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag,
+	const FGameplayTag& StatusTag)
+{
+	AbilityStatusChanged.Broadcast(AbilityTag, StatusTag);
 }
 
 void UAuraAbilitySystemComponent::OnRep_ActivateAbilities()
