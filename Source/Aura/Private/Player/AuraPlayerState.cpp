@@ -15,7 +15,8 @@ AAuraPlayerState::AAuraPlayerState()
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 	
 	//Replication settings for the player state 
-	NetUpdateFrequency = 100.f; // Set the frequency of network updates to 100 times per second
+	//NetUpdateFrequency = 100.f; // Set the frequency of network updates to 100 times per second
+	SetNetUpdateFrequency(100.f); 
 }
 
 void AAuraPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
