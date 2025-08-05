@@ -7,12 +7,12 @@
 #include "AbilitySystem/Data/AbilityInfo.h"
 #include "Player/AuraPlayerState.h"
 
+// Called ONCE at startup - sets the initial values
 void USpellMenuWidgetController::BroadcastInitialValues()
 {
 	BroadcastAbilityInfo();
 
-	SpellPointsChangedDelegate.Broadcast(GetAuraPS()->GetSpellPoints());
-	
+	SpellPointsChangedDelegate.Broadcast(GetAuraPS()->GetSpellPoints());// Start Value!
 }
 
 /**
@@ -33,8 +33,11 @@ void USpellMenuWidgetController::BroadcastInitialValues()
  * Postconditions:
  * - Subscribers to `AbilityInfoDelegate` will receive updates whenever an ability’s status changes.
  */
+
+// Called ONCE - sets up permanent "listeners"
 void USpellMenuWidgetController::BindCallbacksToDependencies()
 {
+	// Listen for ability status changes and forward to UI
 	GetAuraASC()->AbilityStatusChanged.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
 	{
 		if (AbilityInfo)
@@ -45,10 +48,11 @@ void USpellMenuWidgetController::BindCallbacksToDependencies()
 		}
 	});
 	
-	GetAuraPS()->OnAttributePointsChangedDelegate.AddLambda(
+	// From now on, controller PERMANENTLY listens to changes
+	GetAuraPS()->OnSpellPointsChangedDelegate.AddLambda(
 		[this](int32 SpellPoints)
 		{
-			SpellPointsChangedDelegate.Broadcast(SpellPoints);
+			SpellPointsChangedDelegate.Broadcast(SpellPoints); // On EVERY change
 		}
 	);
 }
