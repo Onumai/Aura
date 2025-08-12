@@ -202,6 +202,14 @@ void UAuraAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& E
 	}
 }
 
+/**
+ * Applies a damage effect to a target ability system component based on the specified parameters.
+ * This method constructs and configures a gameplay effect spec and applies it to the target.
+ *
+ * @param DamageEffectParams Struct containing parameters such as source and target ability system components,
+ *        the gameplay effect class, damage information, and debuff properties.
+ * @return A gameplay effect context handle representing the context of the applied effect.
+ */
 FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& DamageEffectParams)
 {
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
