@@ -393,4 +393,6 @@ FString("Type Passive")
 		FString("Attack 4")
 	);
 
+
+	GameplayTags.bInitialized = true;
 }
