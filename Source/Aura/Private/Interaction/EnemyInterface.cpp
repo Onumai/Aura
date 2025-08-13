@@ -1,4 +1,4 @@
-// Copyright Patrick Haubner
++// Copyright Patrick Haubner
 
 
 #include "Interaction/EnemyInterface.h"
