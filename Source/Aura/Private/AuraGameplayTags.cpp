@@ -220,12 +220,12 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	);
 
 	GameplayTags.Debuff_Frequency= UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Debuff.Debuff_Frequency"),
+		FName("Debuff.Frequency"),
 		FString("Debuff Frequency")
 	);
 
 	GameplayTags.Debuff_Duration = UGameplayTagsManager::Get().AddNativeGameplayTag(
-		FName("Debuff.Debuff_Duration"),
+		FName("Debuff.Duration"),
 		FString("Debuff Duration")
 	);
 

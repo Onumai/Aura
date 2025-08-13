@@ -15,6 +15,7 @@ struct FAuraGameplayTags
 {
 	
 public:
+	//static const FAuraGameplayTags& Get() { return GameplayTags;}
 	static const FAuraGameplayTags& Get()
 	{
 		if (!GameplayTags.bInitialized)
@@ -70,8 +71,8 @@ public:
 	
 	FGameplayTag Debuff_Chance;
 	FGameplayTag Debuff_Damage;
-	FGameplayTag Debuff_Frequency;
 	FGameplayTag Debuff_Duration;
+	FGameplayTag Debuff_Frequency;
 	
 	FGameplayTag Abilities_None;
 	
