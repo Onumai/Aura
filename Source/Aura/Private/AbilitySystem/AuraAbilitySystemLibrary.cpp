@@ -198,10 +198,7 @@ FVector UAuraAbilitySystemLibrary::GetDeathImpulse(const FGameplayEffectContextH
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		if (AuraEffectContext->GetDamageType().IsValid())
-		{
 			return AuraEffectContext->GetDeathImpulse();
-		}
 	}
 	return FVector::ZeroVector;
 }
