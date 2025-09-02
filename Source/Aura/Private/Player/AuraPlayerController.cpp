@@ -11,6 +11,7 @@
 #include "AuraGameplayTags.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
+#include "NiagaraFunctionLibrary.h"
 #include "Aura/Aura.h"
 #include "Gameframework/Character.h"
 #include "GameFramework/HUD.h"
@@ -18,6 +19,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "UI/Widget/DamageTextComponent.h"
+#include "NiagaraSystem.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -260,9 +262,9 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 							}
 							CachedDestination = NavigationPath->PathPoints.Last();
 							bAutoRunning = true;
+							UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
 						}
 					}
-
 					if (bDrawDebugEnabled)
 					{
 						DrawDebugBox(GetWorld(), NavChannelCursorHitResult.ImpactPoint, QueryingExtent, FColor::Silver, false, 3.0f);
