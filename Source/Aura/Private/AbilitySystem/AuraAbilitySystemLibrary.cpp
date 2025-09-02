@@ -368,7 +368,7 @@ TArray<FRotator> UAuraAbilitySystemLibrary::EvenlySpacedRotators(const FVector& 
 		const float DeltaSpread = Spread / (NumRotators - 1);
 		for (int32 i = 0; i < NumRotators; i++)
 		{
-			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, Axis);
 			Rotators.Add(Direction.Rotation());
 			//const FVector Start = SocketLocation + FVector(0,0, 5);
 			//UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(), Start,Start + Direction * 75.f,5.f, FLinearColor::Red,60.f, 2.f);
@@ -391,7 +391,7 @@ TArray<FVector> UAuraAbilitySystemLibrary::EvenlyRotatedVectors(const FVector& F
 		const float DeltaSpread = Spread / (NumVectors - 1);
 		for (int32 i = 0; i < NumVectors; i++)
 		{
-			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, Axis);
 			Vectors.Add(Direction);
 			//const FVector Start = SocketLocation + FVector(0,0, 5);
 			//UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(), Start,Start + Direction * 75.f,5.f, FLinearColor::Red,60.f, 2.f);
