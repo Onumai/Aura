@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/Abilities/AuraFireBolt.h"
 
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
+#include "Actor/AuraProjectile.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -114,6 +116,54 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
 	if (bOverridePitch) Rotation.Pitch = PitchOverride;
 	
 	const FVector Forward = Rotation.Vector();
+
+	//TArray<FVector> Directions = UAuraAbilitySystemLibrary::EvenlyRotatedVectors(Forward, FVector::UpVector, ProjectileSpread, NumProjectiles);
+	TArray<FRotator> Rotations = UAuraAbilitySystemLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, NumProjectiles);
+
+	for (const FRotator& Rot : Rotations)
+	{
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(SocketLocation);
+		SpawnTransform.SetRotation(Rot.Quaternion());
+
+		AAuraProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAuraProjectile>(
+		ProjectileClass,
+		SpawnTransform,
+		GetOwningActorFromActorInfo(),
+		Cast<APawn>(GetOwningActorFromActorInfo()),
+		ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
+	
+		Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
+	
+		Projectile->FinishSpawning(SpawnTransform);
+	}
+
+	/*
+	for (FVector Direction : Directions)
+	{
+		UKismetSystemLibrary::DrawDebugArrow(
+				GetAvatarActorFromActorInfo(),
+				SocketLocation,
+				SocketLocation + Direction * 75.f,
+				5.f, FLinearColor::Red,
+				60.f,
+				2.f);
+	}
+
+	for (FRotator Rot : Rotations)
+	{
+		FVector Start = SocketLocation + FVector(0, 0, 10);
+		UKismetSystemLibrary::DrawDebugArrow(
+				GetAvatarActorFromActorInfo(),
+				Start,
+				Start + Rot.Vector() * 75.f,
+				5.f, FLinearColor::Blue,
+				60.f,
+				2.f);
+	}
+	*/
+
+	/*
 	const FVector LeftOfSpread = Forward.RotateAngleAxis(-ProjectileSpread / 2.f, FVector::UpVector);
 	const FVector RightOfSpread = Forward.RotateAngleAxis(ProjectileSpread / 2.f, FVector::UpVector);
 	
@@ -153,6 +203,6 @@ void UAuraFireBolt::SpawnProjectiles(const FVector& ProjectileTargetLocation, co
 	UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(), SocketLocation, SocketLocation + Forward * 100.f, 5.f, FLinearColor::White, 60.f, 2.f);
 	UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(), SocketLocation, SocketLocation + LeftOfSpread * 100.f, 5.f, FLinearColor::Gray, 60.f, 2.f);
 	UKismetSystemLibrary::DrawDebugArrow(GetAvatarActorFromActorInfo(), SocketLocation, SocketLocation + RightOfSpread * 100.f, 5.f, FLinearColor::Gray, 60.f, 2.f);
-
+	*/
 	
 }
