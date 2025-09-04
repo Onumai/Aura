@@ -96,6 +96,7 @@ void AAuraPlayerController::AutoRun()
 
           const FVector LineStart = PawnLocation + WorldDirection.GetSafeNormal() * 50.0f;
           const FVector LineEnd = LineStart + WorldDirection * 100.0f;
+       	
           UKismetSystemLibrary::DrawDebugArrow(this, LineStart, LineEnd, 20.0f, FLinearColor::Yellow, 0.0f, 4);
 
           DrawDebugSphere(GetWorld(), TargetSplinePointLocation, 20.0f, 12, FColor::Yellow);
@@ -146,6 +147,14 @@ bool AAuraPlayerController::GetScreenPositionPlaneIntersection(const FVector2D& 
 
 void AAuraPlayerController::CursorTrace()
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_CursorTrace))
+	{
+		if (LastActor) LastActor->UnHighlightActor();
+		if (ThisActor) ThisActor->UnHighlightActor();
+		LastActor = nullptr;
+		ThisActor = nullptr;
+		return;
+	}
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit); // Perform a trace to get the hit result under the cursor.
 	if (!CursorHit.bBlockingHit) return; // If there is no hit, return early.
 
@@ -212,6 +221,8 @@ void AAuraPlayerController::CursorTrace()
 
 void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed)) return;
+	
 	if (InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		bTargeting = ThisActor ? true : false;
@@ -223,6 +234,8 @@ void AAuraPlayerController::AbilityInputTagPressed(FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputReleased)) return;
+	
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		if (GetASC()) GetASC()->AbilityInputTagReleased(InputTag);
@@ -257,13 +270,19 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 						if (NavigationPath && NavigationPath->PathPoints.Num() > 0)
 						{
 							Spline->ClearSplinePoints();
+
 							for (const FVector& PathPoint : NavigationPath->PathPoints)
 							{
 								Spline->AddSplinePoint(PathPoint, ESplineCoordinateSpace::World);
 							}
+
 							CachedDestination = NavigationPath->PathPoints.Last();
 							bAutoRunning = true;
-							UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+
+							if (GetASC() && !GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed))
+							{
+								UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);	
+							}
 						}
 					}
 					if (bDrawDebugEnabled)
@@ -280,6 +299,8 @@ void AAuraPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AAuraPlayerController::AbilityInputTagHeld(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputHeld)) return;
+	
 	if (!InputTag.MatchesTagExact(FAuraGameplayTags::Get().InputTag_LMB))
 	{
 		if (GetASC()) GetASC()->AbilityInputTagHeld(InputTag);
@@ -367,6 +388,8 @@ void AAuraPlayerController::SetupInputComponent()
 
 void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(FAuraGameplayTags::Get().Player_Block_InputPressed)) return;
+	
 	const FVector2D InputAxisVector = InputActionValue.Get<FVector2D>();// Get the input axis vector from the action value.
 	const FRotator Rotation = GetControlRotation();// Get the control rotation of the player controller.
 	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f); // Create a new rotation with only the yaw component.
