@@ -9,10 +9,10 @@
 #include "UI/Widget/AuraUserWidget.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AuraGameplayTags.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "AI/AuraAIController.h"
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 AAuraEnemy::AAuraEnemy()
 {
@@ -32,6 +32,7 @@ AAuraEnemy::AAuraEnemy()
 	bUseControllerRotationYaw = false;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true; // For smoother movement rotation of the enemy to a location.
 
+	BaseWalkSpeed = 250.0f;
 }
 
 void AAuraEnemy::PossessedBy(AController* NewController)
@@ -87,8 +88,7 @@ AActor* AAuraEnemy::GetCombatTarget_Implementation() const
 
 void AAuraEnemy::BeginPlay()
 {
-	Super::BeginPlay(); 
-	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	Super::BeginPlay();
 
 	InitAbilityActorInfo(); // Initializes the ability actor info, which includes setting up the ability system component and default attributes.
 	if (HasAuthority())
@@ -140,14 +140,13 @@ void AAuraEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 	{
 		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 	}
-	
 }
 
 void AAuraEnemy::InitAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this); // Initialize the ability system component with the actor info.
-
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraEnemy::StunTagChanged);
 
 	if (HasAuthority())
 	{
@@ -160,4 +159,14 @@ void AAuraEnemy::InitAbilityActorInfo()
 void AAuraEnemy::InitializeDefaultAttributes() const
 {
 	UAuraAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+}
+
+void AAuraEnemy::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::StunTagChanged(CallbackTag, NewCount);
+	
+	if (AuraAIController && AuraAIController->GetBlackboardComponent())
+	{
+		AuraAIController->GetBlackboardComponent()->SetValueAsBool(FName("Stunned"), bIsStunned);
+	}
 }

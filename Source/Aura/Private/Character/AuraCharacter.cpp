@@ -9,10 +9,12 @@
 #include "Player/AuraPlayerController.h"
 #include <UI/HUD/AuraHUD.h>
 
+#include "AuraGameplayTags.h"
 #include "NiagaraComponent.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "UObject/FastReferenceCollector.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -41,6 +43,8 @@ AAuraCharacter::AAuraCharacter()
 	bUseControllerRotationRoll = false; // Disable controller rotation for roll
 
 	CharacterClass = ECharacterClass::Elementalist;
+
+	BaseWalkSpeed = 600.f;
 }
 
 void AAuraCharacter::PossessedBy(AController* NewController)
@@ -175,6 +179,27 @@ void AAuraCharacter::MulticastHandleDeath(const FVector& DeathImpulse)
 	Super::MulticastHandleDeath_Implementation(DeathImpulse);
 }
 
+void AAuraCharacter::OnRep_Stunned()
+{
+	if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
+	{
+		const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+		FGameplayTagContainer BlockedTags;
+		BlockedTags.AddTag(GameplayTags.Player_Block_CursorTrace);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputHeld);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputPressed);
+		BlockedTags.AddTag(GameplayTags.Player_Block_InputReleased);
+		if (bIsStunned)
+		{
+			AuraASC->AddLooseGameplayTags(BlockedTags);
+		}
+		else
+		{
+			AuraASC->RemoveLooseGameplayTags(BlockedTags);
+		}
+	}
+}
+
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
@@ -184,6 +209,7 @@ void AAuraCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent(); // Get the ability system component from the player state
 	AttributeSet = AuraPlayerState->GetAttributeSet(); // Get the attribute set from the player state
 	OnAscRegistered.Broadcast(AbilitySystemComponent);
+	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &AAuraCharacter::StunTagChanged);
 	
 	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
 	{

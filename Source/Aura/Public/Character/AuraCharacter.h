@@ -43,9 +43,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
-
 	
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
+
+	virtual void OnRep_Stunned() override;
 	
 private:
 	

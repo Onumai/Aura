@@ -55,9 +55,6 @@ public:
 	bool bHitReacting = false; // Flag to check if the actor is hit reacting or not.
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
-	float BaseWalkSpeed = 250.0f; // Default base walk speed for the enemy character
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	float LifeSpan = 5.f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
@@ -65,10 +62,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-
 	virtual void InitAbilityActorInfo() override;
-
 	virtual void InitializeDefaultAttributes() const override;
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Class Defaults")
 	int32 Level = 1;
