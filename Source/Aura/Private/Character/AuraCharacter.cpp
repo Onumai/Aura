@@ -162,6 +162,19 @@ int32 AAuraCharacter::GetPlayerLevel_Implementation()
 	return AuraPlayerState->GetPlayerLevel();
 }
 
+void AAuraCharacter::MulticastHandleDeath(const FVector& DeathImpulse)
+{
+	// NOTE: We need to call DisableInput() on the Actor we need to disable input for, i.e. this Pawn's Controller,
+	// if we call it directly from this Pawn, it won't work.
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		PlayerController->DisableInput(PlayerController);
+	}
+ 
+	Super::MulticastHandleDeath_Implementation(DeathImpulse);
+}
+
 void AAuraCharacter::InitAbilityActorInfo()
 {
 	AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();

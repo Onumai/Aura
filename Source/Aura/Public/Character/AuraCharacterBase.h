@@ -32,6 +32,7 @@ public:
 	/* Combat Interface*/
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override; // Override this to provide a hit reaction montage
 	virtual void Die(const FVector& DeathImpulse) override;
+	virtual FOnDeathSignature& GetOnDeathDelegate() override;
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
 	virtual bool IsDead_Implementation() const override;
 	virtual AActor* GetAvatar_Implementation() override;
@@ -43,12 +44,13 @@ public:
 	FORCEINLINE virtual float GetHalfHeight() const override { return GetCapsuleComponent()->GetScaledCapsuleHalfHeight(); }
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
-	virtual FOnDeath GetOnDeathDelegate() override;
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	/* End Combat Interface*/
 
 	FOnASCRegistered OnAscRegistered;
-	FOnDeath OnDeath;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnDeathSignature OnDeathDelegate;
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
