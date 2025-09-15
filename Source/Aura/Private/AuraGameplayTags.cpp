@@ -275,6 +275,17 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FString("No Ability - like the nullptr for Ability Tags")
 	);
 
+	GameplayTags.Abilities = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities"),
+		FString("Ability Tag.")
+		);
+	
+	GameplayTags.Abilities_Passive = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Passive"),
+		FString("Passive Ability Tag.")
+		);
+	
+
 	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Attack"),
 		FString("Attack Ability Tag")
@@ -343,6 +354,12 @@ FString("Type Passive")
 		FName("Cooldown.Fire.FireBolt"),
 	FString("FireBolt Cooldown Tag")
 	);
+
+	GameplayTags.Cooldown_Lightning_Electrocute = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Cooldown.Lightning.Electrocute"),
+	FString("Electrocute Cooldown Tag")
+	);
+	
 	
 	/*
 		CombatSockets
@@ -400,7 +417,7 @@ FString("Type Passive")
 	GameplayTags.Player_Block_CursorTrace = UGameplayTagsManager::Get().AddNativeGameplayTag(
 			FName("Player.Block.CursorTrace"),
 			FString("Block tracing under the cursor")
-		);
+			);
 
 	GameplayTags.Player_Block_InputHeld = UGameplayTagsManager::Get().AddNativeGameplayTag(
 			FName("Player.Block.InputHeld"),

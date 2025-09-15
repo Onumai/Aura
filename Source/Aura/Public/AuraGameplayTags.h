@@ -75,6 +75,9 @@ public:
 	FGameplayTag Debuff_Frequency;
 	
 	FGameplayTag Abilities_None;
+
+	FGameplayTag Abilities;
+	FGameplayTag Abilities_Passive;
 	
 	FGameplayTag Abilities_Attack;
 	FGameplayTag Abilities_Summon;
@@ -94,6 +97,7 @@ public:
 	FGameplayTag Abilities_Lightning_Electrocute;
 
 	FGameplayTag Cooldown_Fire_FireBolt;
+	FGameplayTag Cooldown_Lightning_Electrocute;
 
 	FGameplayTag CombatSocket_Weapon;
 	FGameplayTag CombatSocket_RightHand;
@@ -110,6 +114,7 @@ public:
 
 	FGameplayTag Effects_HitReact;
 
+	// To Block Inputs for GA->ActivationOwnedTags
 	FGameplayTag Player_Block_InputPressed;
 	FGameplayTag Player_Block_InputHeld;
 	FGameplayTag Player_Block_InputReleased;

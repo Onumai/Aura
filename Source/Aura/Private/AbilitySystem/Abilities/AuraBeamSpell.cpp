@@ -7,16 +7,19 @@
 #include "GameFramework/Character.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-void UAuraBeamSpell::StoreMouseDataInfo(const FHitResult& HitResult)
+void UAuraBeamSpell::StoreMouseDataInfo(const FHitResult& HitResult, bool& bMouseDataWasStored)
 {
 	if (HitResult.bBlockingHit)
 	{
 		MouseHitLocation = HitResult.ImpactPoint;
 		MouseHitActor = HitResult.GetActor();
+		bMouseDataWasStored = true;
 	}
 	else
 	{
-		CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		//CancelAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true);
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		bMouseDataWasStored = false;
 	}
 }
 
@@ -29,17 +32,39 @@ void UAuraBeamSpell::StoreOwnerVariables()
 	}
 }
 
+/**
+ * Traces and identifies the first valid target impacted by the beam.
+ *
+ * This function performs a sphere trace starting from the weapon's tip socket to the provided target location.
+ * It checks for a blocking hit and stores information about the hit location and the impacted actor.
+ * If the hit actor implements the combat interface, it binds a delegate to handle the actor's death.
+ *
+ * @param BeamTargetLocation The target location where the beam trace will be directed.
+ */
 void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 {
-	check (OwnerCharacter);
+	//check (OwnerCharacter);
+
+	if (!OwnerCharacter)
+	{
+		StoreOwnerVariables();
+	}
+
+	if (!OwnerCharacter)
+	{
+		// Defensive: Ability abbrechen statt harter check() Assertion
+		EndAbility(CurrentSpecHandle, CurrentActorInfo, CurrentActivationInfo, true, false);
+		return;
+	}
+	
 	if (OwnerCharacter->Implements<UCombatInterface>())
 	{
 		if (USkeletalMeshComponent* Weapon = ICombatInterface::Execute_GetWeapon(OwnerCharacter))
 		{
 			TArray<AActor*> ActorsToIgnore;
-			ActorsToIgnore.Add(OwnerCharacter);
+			ActorsToIgnore.Add(OwnerCharacter); // Ignores the Actor that cast the spell 
 			FHitResult HitResult;
-			const FVector SocketLocation = Weapon->GetSocketLocation(FName("TipSocket"));
+			const FVector SocketLocation = Weapon->GetSocketLocation(FName("TipSocket")); // Traces from the tip socket
 			UKismetSystemLibrary::SphereTraceSingle(
 				OwnerCharacter,
 				SocketLocation,
@@ -52,13 +77,15 @@ void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 				HitResult,
 				true);
 
-			if (HitResult.bBlockingHit)
+			if (HitResult.bBlockingHit) // If bBlockingHit is true, we get the ImpactPoint and the actor that blocked the trace
 			{
 				MouseHitLocation = HitResult.ImpactPoint;
 				MouseHitActor = HitResult.GetActor();
 			}
 		}
 	}
+	if (!IsValid(MouseHitActor)) return;
+	
 	if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(MouseHitActor))
 	{
 		if (!CombatInterface->GetOnDeathDelegate().IsAlreadyBound(this, &UAuraBeamSpell::PrimaryTargetDied))
@@ -70,6 +97,12 @@ void UAuraBeamSpell::TraceFirstTarget(const FVector& BeamTargetLocation)
 
 void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets)
 {
+	if (!IsValid(MouseHitActor))
+	{
+		OutAdditionalTargets.Reset();
+		return;
+	}
+	
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetAvatarActorFromActorInfo()); //Executing Actor	
 	ActorsToIgnore.Add(MouseHitActor); //Actor that already got hit
@@ -91,7 +124,7 @@ void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTarget
 		OverlappingActors,
 		OutAdditionalTargets,
 		MouseHitActor->GetActorLocation());
-
+	
 	for (AActor* Target : OutAdditionalTargets)
 	{
 		if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(Target))
@@ -104,7 +137,7 @@ void UAuraBeamSpell::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTarget
 	}
 }
 
-void UAuraBeamSpell::RemoveOnDeathBindingFromPrimaryTarget()
+void UAuraBeamSpell::RemoveOnDeathBindingFromPrimaryTarget(AActor* Target)
 {
 	ICombatInterface* CombatInterface = Cast<ICombatInterface>(MouseHitActor);
 	if (CombatInterface)

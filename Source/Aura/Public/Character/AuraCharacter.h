@@ -47,6 +47,7 @@ public:
 	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 
 	virtual void OnRep_Stunned() override;
+	virtual void OnRep_Burned() override;
 	
 private:
 	

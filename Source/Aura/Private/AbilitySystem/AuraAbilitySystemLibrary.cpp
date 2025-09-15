@@ -272,6 +272,49 @@ void UAuraAbilitySystemLibrary::GetClosestTargets(int32 MaxTargets, const TArray
 		OutClosestTargets.AddUnique(ClosestActor);
 		++NumTargetsFound;
 	}
+
+	///////////////////////////////////////////////////////////
+
+	/*
+	// Check if MaxTargets or Actors and return
+	if (MaxTargets == 0 || Actors.IsEmpty()) return;
+
+	// Create local array for sorted actors
+	TArray<AActor*> SortedActors;
+
+	// First we want to remove any Players from Actors, ie only add Enemies
+	for (int32 i = 0; i < ActorsToCheck.Num(); i++)
+		{
+			if (ActorsToCheck[i]->ActorHasTag(FName("Enemy")))
+			{
+				SortedActors.Add(ActorsToCheck[i]);
+			}
+		}
+	
+	// Now exit if SortedActos is empty
+	if (SortedActors.IsEmpty()) return;
+	
+	// Now check if SortedActors is less than MaxTargets
+	if (SortedActors.Num() <= MaxTargets)
+	{
+		OutClosestTargets = SortedActors;
+		return;
+	}
+
+	// Now sort the Actors according to their distance from origin.
+	Algo::Sort(SortedActors, [Origin](const AActor* ActorA, const AActor* ActorB)
+	{
+		const float DistanceA = FVector::DistSquared(ActorA->GetActorLocation(), Origin);
+		const float DistanceB = FVector::DistSquared(ActorB->GetActorLocation(), Origin);
+		return DistanceA < DistanceB;
+	});
+	
+	// Now return the first elements of SortedActors up to MaxTargets
+	for (int32 i = 0; i < MaxTargets; i++)
+	{
+		OutClosestTargets.AddUnique(SortedActors[i]);
+	}
+	*/
 }
 
 bool UAuraAbilitySystemLibrary::IsNotFriend(AActor* FirstActor, AActor* SecondActor)

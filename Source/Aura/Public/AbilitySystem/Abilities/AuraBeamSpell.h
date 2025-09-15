@@ -16,7 +16,7 @@ class AURA_API UAuraBeamSpell : public UAuraDamageGameplayAbility
 public:
 	
 	UFUNCTION(BlueprintCallable)
-	void StoreMouseDataInfo(const FHitResult& HitResult);
+	void StoreMouseDataInfo(const FHitResult& HitResult, bool& bMouseDataWasStored);
 
 	UFUNCTION(BlueprintCallable)
 	void StoreOwnerVariables();
@@ -27,14 +27,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTargets);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent) // No Cpp definition-> in BP
 	void PrimaryTargetDied(AActor* DeadActor);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent) // No Cpp definition-> in BP
 	void AdditionalTargetDied(AActor* DeadActor);
 
 	UFUNCTION(BlueprintCallable)
-	void RemoveOnDeathBindingFromPrimaryTarget();
+	void RemoveOnDeathBindingFromPrimaryTarget(AActor* Target);
 
 	UFUNCTION(BlueprintCallable)
 	void RemoveOnDeathBindingFromAdditionalTargets(AActor* AdditionalTarget);

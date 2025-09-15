@@ -47,21 +47,18 @@ void UAuraAbilitySystemComponent::AddCharacterPassiveAbilities(
 void UAuraAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;
-	// Lock the ActivatableAbilities container until the for loop is done.
-	FScopedAbilityListLock ScopedAbilityListLock(*this);
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec. GetDynamicSpecSourceTags().HasTagExact(InputTag) && AbilitySpec.IsActive())
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
-			AbilitySpecInputReleased(AbilitySpec);
-			TArray<UGameplayAbility*> AbilityInstances = AbilitySpec.GetAbilityInstances();
-			for (UGameplayAbility* AbilityInstance : AbilityInstances)
+			AbilitySpecInputPressed(AbilitySpec);
+			if (AbilitySpec.IsActive())
 			{
 				InvokeReplicatedEvent(
-				EAbilityGenericReplicatedEvent::InputPressed,
-				AbilitySpec.Handle,
-				AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+					EAbilityGenericReplicatedEvent::InputPressed,
+					AbilitySpec.Handle,
+					AbilitySpec.GetAbilityInstances().Last()->GetCurrentActivationInfoRef().GetActivationPredictionKey());
 			}
 		}
 	}
@@ -72,39 +69,68 @@ void UAuraAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputT
 	if (!InputTag.IsValid()) return;
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
-	{	
+	{
 		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag))
 		{
-			AbilitySpecInputPressed(AbilitySpec); 
+			AbilitySpecInputPressed(AbilitySpec);
 			if (!AbilitySpec.IsActive())
 			{
 				TryActivateAbility(AbilitySpec.Handle);
 			}
 		}
-	}
+	}	
 }
 
+/**
+ * Handles the release event of an ability input associated with a specific tag.
+ *
+ * This function processes the input release for abilities that are activated by the specified tag.
+ * It searches through the list of activatable abilities in the ability system component, determines
+ * if a matching tag exists among the dynamic spec source tags, and executes the appropriate release
+ * logic. If the ability is active and instanced per actor, it invokes a replicated "InputReleased" event
+ * for each ability instance.
+ *
+ * @param InputTag The gameplay tag representing the input action that has been released.
+ */
 void UAuraAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;
-	// Lock the ActivatableAbilities container until the for loop is done.
-	FScopedAbilityListLock ScopedAbilityListLock(*this);
 
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
-		if (AbilitySpec. GetDynamicSpecSourceTags().HasTagExact(InputTag) && AbilitySpec.IsActive())
+		if (AbilitySpec.GetDynamicSpecSourceTags().HasTagExact(InputTag) && AbilitySpec.IsActive())
 		{
 			AbilitySpecInputReleased(AbilitySpec);
-			TArray<UGameplayAbility*> AbilityInstances = AbilitySpec.GetAbilityInstances();
-			for (UGameplayAbility* AbilityInstance : AbilityInstances)
-			{
-				InvokeReplicatedEvent(
+			InvokeReplicatedEvent(
 				EAbilityGenericReplicatedEvent::InputReleased,
 				AbilitySpec.Handle,
-				AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+				AbilitySpec.GetAbilityInstances().Last()->GetCurrentActivationInfoRef().GetActivationPredictionKey());
+		}
+	}
+
+
+	/* Lecture 320 Q&A
+	if (!InputTag.IsValid()) return;
+     
+	// Lock the ActivatableAbilities container until the for loop is done.
+	FScopedAbilityListLock ScopedAbilityListLock(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputReleased(AbilitySpec);
+			if (AbilitySpec.IsActive())
+			{
+				// NOTE: GetPrimaryInstance() is only valid on InstancedPerActor abilities.
+				TArray<UGameplayAbility*> AbilityInstances = AbilitySpec.GetAbilityInstances();
+				for (UGameplayAbility* AbilityInstance : AbilityInstances)
+				{
+					InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, AbilityInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+				}
 			}
 		}
 	}
+	*/
 }
 
 void UAuraAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate)
