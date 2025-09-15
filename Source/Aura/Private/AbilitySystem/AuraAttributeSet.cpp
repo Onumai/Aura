@@ -313,6 +313,11 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 		FAuraGameplayEffectContext* AuraContext = static_cast<FAuraGameplayEffectContext*>(MutableSpec->GetContext().Get());
 		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageType));
 		AuraContext->SetDamageType(DebuffDamageType);
+
+		// Will cancel channel abilities if stunned
+		const FGameplayTagContainer AbilitiesToCancelTags(GameplayTags.Abilities);
+		const FGameplayTagContainer AbilitiesToIgnoreTags(GameplayTags.Abilities_Passive);
+		Props.TargetASC->CancelAbilities(&AbilitiesToCancelTags, &AbilitiesToIgnoreTags);
 		
 		Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
 	}
@@ -320,6 +325,21 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 
 void UAuraAttributeSet::ShowFloatingText(const FEffectProperties Props, float Damage, bool bBlockedHit, bool bCriticalHit) const
 {
+
+	if (Props.SourceCharacter != Props.TargetCharacter)
+	{
+		// Spawn the damage text on each client.
+		for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		{
+			if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(It->Get()))
+			{
+				AuraPlayerController->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
+			}
+		}
+	}
+
+	/*
+	
 	if (Props.SourceCharacter != Props.TargetCharacter)
 	{
 		if (AAuraPlayerController* PC = Cast<AAuraPlayerController>(Props.SourceCharacter->Controller))
@@ -332,6 +352,7 @@ void UAuraAttributeSet::ShowFloatingText(const FEffectProperties Props, float Da
 			PC->ShowDamageNumber(Damage, Props.TargetCharacter, bBlockedHit, bCriticalHit);
 		}
 	}
+	*/
 }
 
 void UAuraAttributeSet::SendXPEvent(const FEffectProperties& Props) const

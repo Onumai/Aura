@@ -274,6 +274,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		FName("Abilities.None"),
 		FString("No Ability - like the nullptr for Ability Tags")
 	);
+	
 
 	GameplayTags.Abilities = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities"),
