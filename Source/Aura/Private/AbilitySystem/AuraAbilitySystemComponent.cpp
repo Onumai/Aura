@@ -256,6 +256,12 @@ void UAuraAbilitySystemComponent::AssignSlotToAbility(FGameplayAbilitySpec& Spec
 	Spec.GetDynamicSpecSourceTags().AddTag(Slot); // New Ability is getting assigned
 }
 
+void UAuraAbilitySystemComponent::MulitcastActivatePassiveEffect_Implementation(const FGameplayTag& AbilityTag,
+	bool bActivate)
+{
+	ActivatePassiveEffect.Broadcast(AbilityTag, bActivate);
+}
+
 /**
  * Retrieves the ability spec associated with the specified ability tag.
  *
@@ -351,6 +357,7 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 
 					if (IsPassiveAbility(*SpecWithSlot))
 					{
+						MulitcastActivatePassiveEffect(GetAbilityTagFromSpec(*SpecWithSlot), false);
 						DeactivatePassiveAbility.Broadcast(GetAbilityTagFromSpec(*SpecWithSlot)); // To deactivate the Passive Ability, if the new Ability gets equipped
 					}
 
@@ -363,6 +370,7 @@ void UAuraAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 			{
 				if (IsPassiveAbility(*AbilitySpec)) // If it is passive, the ability gets activated
 				{
+					MulitcastActivatePassiveEffect(AbilityTag, true);
 					TryActivateAbility(AbilitySpec->Handle);
 				}
 			}

@@ -13,6 +13,7 @@
 
 
 class UDebuffNiagaraComponent;
+class UPassiveSpellNiagaraComponent;
 class UAbilitySystemComponent;
 class UAttributeSet;
 class UGameplayEffect;
@@ -26,6 +27,7 @@ class AURA_API AAuraCharacterBase : public ACharacter, public IAbilitySystemInte
 
 public:
 	AAuraCharacterBase();
+	virtual void Tick(float DeltaTime) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override; // Returns the ability system component for this character
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
@@ -170,5 +172,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 
+	/* Passive Spell Niagara Effects */
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UPassiveSpellNiagaraComponent> HaloOfProtectionNiagaraComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UPassiveSpellNiagaraComponent> LifeSiphonNiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UPassiveSpellNiagaraComponent> ManaSiphonNiagaraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> EffectAttachComponent;
 };
