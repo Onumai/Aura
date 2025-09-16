@@ -8,14 +8,15 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AuraAbilityTypes.h"
 #include "AuraGameplayTags.h"
+#include "NativeGameplayTags.h"
+#include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Interaction/CombatInterface.h"
 #include "Player/AuraPlayerController.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "Interaction/PlayerInterface.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Math/UnitConversion.h"
-
-// Use / ShowDebug AbilitySystem / in the cmd in UEEditor to show the attributes and more like the owner and avatar
+#include "Engine/Engine.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
 {
@@ -186,10 +187,29 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 {
 	const float LocalIncomingDamage = GetIncomingDamage();
 	SetIncomingDamage(0.f);
+	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
 	if (LocalIncomingDamage > 0.f)
 	{
-		const float NewHealth = GetHealth() - LocalIncomingDamage;
+		const float OldHealth = GetHealth();
+		const float NewHealth = OldHealth - LocalIncomingDamage;
 		SetHealth(FMath::Clamp(NewHealth, 0.f, GetMaxHealth()));
+
+		// Debug: Schaden/HP/Siphon-Basis
+		/*
+		{
+			const float Overkill = FMath::Max(0.f, -NewHealth);
+			const float SiphonBase = FMath::Max(0.f, LocalIncomingDamage - Overkill);
+			UE_LOG(LogTemp, Log, TEXT("[DMG] Dmg=%.1f | OldHP=%.1f -> NewHP=%.1f | Overkill=%.1f | SiphonBase=%.1f"),
+				LocalIncomingDamage, OldHealth, NewHealth, Overkill, SiphonBase);
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					-1, 2.5f, FColor::Red,
+					FString::Printf(TEXT("DMG %.1f | HP %.1f -> %.1f | OK %.1f | SIPH %.1f"),
+					LocalIncomingDamage, OldHealth, NewHealth, Overkill, SiphonBase));
+			}
+		}
+		*/
 
 		const bool bFatal = NewHealth <= 0.f;
 		if (bFatal)
@@ -216,16 +236,35 @@ void UAuraAttributeSet::HandleIncomingDamage(const FEffectProperties& Props)
 			{
 				Props.TargetCharacter->LaunchCharacter(KnockbackForce, true, true);
 			}
-			
+			//Debuff
 			if (UAuraAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
 			{
 				Debuff(Props);
 			}
 		}
+
+		// Siphon: nur den tatsächlich angewendeten Schaden verwenden (kein Overkill)
+		if (Props.SourceASC)
+		{
+			const float Overkill = FMath::Max(0.f, -NewHealth);
+			const float SiphonBase = FMath::Max(0.f, LocalIncomingDamage - Overkill);
+
+			if (SiphonBase > 0.f)
+			{
+				if (Props.SourceASC->HasMatchingGameplayTag(GameplayTags.Abilities_Passive_LifeSiphon))
+				{
+					Siphon("Life", SiphonBase, Props);
+				}
+				if (Props.SourceASC->HasMatchingGameplayTag(GameplayTags.Abilities_Passive_ManaSiphon))
+				{
+					Siphon("Mana", SiphonBase, Props);
+				}
+			}
+		}
+
 		const bool bBlock = UAuraAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
 		const bool bCriticalHit = UAuraAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 		ShowFloatingText(Props, LocalIncomingDamage, bBlock, bCriticalHit);
-		
 	}
 }
 
@@ -327,6 +366,101 @@ void UAuraAttributeSet::Debuff(const FEffectProperties& Props)
 		Props.TargetASC->CancelAbilities(&AbilitiesToCancelTags, &AbilitiesToIgnoreTags);
 		
 		Props.TargetASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
+	}
+}
+
+void UAuraAttributeSet::Siphon(const FString& Attribute, float Damage, const FEffectProperties& Props)
+{
+	if (Props.SourceCharacter->Implements<UCombatInterface>() &&
+		ICombatInterface::Execute_IsDead(Props.SourceCharacter))
+		return;
+
+	if (Damage <= 0.f) return;
+
+	const FString SiphonName = FString::Printf(TEXT("%sSiphon"), *Attribute);
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(SiphonName));
+
+	const FGameplayTag SiphonTag = FGameplayTag::RequestGameplayTag(
+		FName(FString::Printf(TEXT("Abilities.Passive.%s"), *SiphonName)));
+
+	UAuraAbilitySystemComponent* SourceASC = Cast<UAuraAbilitySystemComponent>(Props.SourceASC);
+	const UCharacterClassInfo* CharacterClassInfo = UAuraAbilitySystemLibrary::GetCharacterClassInfo(Props.SourceCharacter);
+	const FGameplayAbilitySpec* Spec = SourceASC ? SourceASC->GetSpecFromAbilityTag(SiphonTag) : nullptr;
+
+	if (!SourceASC || !SourceASC->HasMatchingGameplayTag(SiphonTag) || !CharacterClassInfo || !Spec ||
+		 !CharacterClassInfo->PassiveAbilityCoefficients) return;
+	
+	// Siphon-Prozentsatz anwenden
+	float GainAmount = 0.f;
+	if (const FRealCurve* SiphonCurve = CharacterClassInfo->PassiveAbilityCoefficients->FindCurve(
+		FName(FString::Printf(TEXT("%sPercentage"), *SiphonName)), FString()))
+	{
+		const float AbilityLevel = Spec->Level;
+		const float SiphonPercentage = SiphonCurve->Eval(AbilityLevel);
+		GainAmount = Damage * (SiphonPercentage / 100.f);
+	}
+	else
+	{
+		return; // no curve no siphon
+	}
+
+	// Debug: Werte vor Anwendung auf dem Angreifer (SourceASC)
+	/*
+	{
+		const bool bLife = Attribute.Equals(TEXT("Life"), ESearchCase::IgnoreCase);
+		const FGameplayAttribute Attr = bLife ? GetHealthAttribute() : GetManaAttribute();
+		const FGameplayAttribute MaxAttr = bLife ? GetMaxHealthAttribute() : GetMaxManaAttribute();
+		const float OldVal = SourceASC->GetNumericAttribute(Attr);
+		const float MaxVal = SourceASC->GetNumericAttribute(MaxAttr);
+		const float NewVal = FMath::Clamp(OldVal + GainAmount, 0.f, MaxVal);
+
+		UE_LOG(LogTemp, Log, TEXT("[SIPHON %s] Base=%.1f%% of %.1f => Gain=%.1f | Old=%.1f -> New=%.1f (Max=%.1f)"),
+			bLife ? TEXT("LIFE") : TEXT("MANA"),
+			(GainAmount > 0.f && Damage > 0.f) ? (100.f * GainAmount / Damage) : 0.f,
+			Damage, GainAmount, OldVal, NewVal, MaxVal);
+
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(
+				-1, 2.5f, bLife ? FColor::Green : FColor::Cyan,
+				FString::Printf(TEXT("Siphon %s: +%.1f | %.1f -> %.1f / %.1f"),
+					bLife ? TEXT("HP") : TEXT("Mana"),
+					GainAmount, OldVal, NewVal, MaxVal));
+		}
+	}
+	*/
+
+	Effect->DurationPolicy = EGameplayEffectDurationType::Instant;
+	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
+	Effect->StackLimitCount = 1;
+
+	int32 Index = Effect->Modifiers.Num();
+	Effect->Modifiers.Add(FGameplayModifierInfo());
+	FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index];
+
+	ModifierInfo.ModifierMagnitude = FScalableFloat(GainAmount);
+	ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+
+	// gezielt das richtige Attribut setzen
+	if (Attribute.Equals(TEXT("Life"), ESearchCase::IgnoreCase))
+	{
+		ModifierInfo.Attribute = GetHealthAttribute();
+	}
+	else if (Attribute.Equals(TEXT("Mana"), ESearchCase::IgnoreCase))
+	{
+		ModifierInfo.Attribute = GetManaAttribute();
+	}
+	else
+	{
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = Props.SourceASC->MakeEffectContext();
+	EffectContext.AddSourceObject(Props.SourceAvatarActor);
+
+	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, EffectContext, 1.f))
+	{
+		Props.SourceASC->ApplyGameplayEffectSpecToSelf(*MutableSpec);
 	}
 }
 

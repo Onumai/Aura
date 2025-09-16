@@ -8,6 +8,9 @@
 #include "AuraGameplayTags.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/Abilities/AuraPassiveAbility.h"
+#include "AbilitySystem/Abilities/AuraHaloOfProtection.h"
+
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
 
@@ -121,14 +124,61 @@ void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParam
 	}
 }
 
+float UExecCalc_Damage::ApplyDamageReductionByHaloOfProtection(float Damage,
+															   const UAbilitySystemComponent* TargetASC,
+															   const UCharacterClassInfo* TargetCharacterClassInfo)
+{
+	const FAuraGameplayTags& AbilityTags = FAuraGameplayTags::Get();
+	if (!TargetASC || !TargetASC->HasMatchingGameplayTag(AbilityTags.Abilities_Passive_HaloOfProtection) ||
+		!TargetCharacterClassInfo || !TargetCharacterClassInfo->PassiveAbilityCoefficients)
+	{
+		return Damage;
+	}
+
+	// Get the Value from the Ability Level
+	const FRealCurve* DamageReductionCurve = TargetCharacterClassInfo->PassiveAbilityCoefficients->FindCurve(FName("DamageReductionRatio"), FString());
+	if (DamageReductionCurve)
+	{
+		int32 AbilityLevel = 1; // Fallback
+		if (TargetASC)
+		{
+			const FAuraGameplayTags& Tags = FAuraGameplayTags::Get();
+			int32 MaxFoundLevel = 0;
+
+			for (const FGameplayAbilitySpec& SpecIt : TargetASC->GetActivatableAbilities())
+			{
+				if (SpecIt.Ability && SpecIt.Ability->GetAssetTags().HasTag(Tags.Abilities_Passive_HaloOfProtection))
+				{
+					const int32 SpecLevel = SpecIt.Level;
+					MaxFoundLevel = FMath::Max(MaxFoundLevel, SpecLevel);
+				}
+			}
+
+			if (MaxFoundLevel > 0)
+			{
+				AbilityLevel = MaxFoundLevel;
+			}
+		}
+		
+		const float DamageReductionPercent = DamageReductionCurve->Eval(AbilityLevel);
+		Damage *= 1.f - DamageReductionPercent / 100.f;
+	}
+
+	return Damage;
+}
+
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
                                               FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const
 {
 	const UAbilitySystemComponent* SourceASC = ExecutionParams.GetSourceAbilitySystemComponent();
 	const UAbilitySystemComponent* TargetASC = ExecutionParams.GetTargetAbilitySystemComponent();
-
+	
 	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
 	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
+
+	const UCharacterClassInfo* SourceCharacterClassInfo = UAuraAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
+	const UCharacterClassInfo* TargetCharacterClassInfo = UAuraAbilitySystemLibrary::GetCharacterClassInfo(TargetAvatar);
+	
 
 	int32 SourcePlayerLevel = 1;
 	if (SourceAvatar->Implements<UCombatInterface>())
@@ -231,6 +281,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	// Double damage plus a bonus if critical hit
 	Damage = bCriticalHit ? 2.f * Damage + SourceCriticalHitDamage : Damage;
+
+	Damage = ApplyDamageReductionByHaloOfProtection(Damage, TargetASC, TargetCharacterClassInfo);
 
 	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);

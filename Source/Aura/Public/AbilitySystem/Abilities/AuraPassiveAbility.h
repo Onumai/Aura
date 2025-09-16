@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/AuraGameplayAbility.h"
+#include "AuraAbilityTypes.h"
 #include "AuraPassiveAbility.generated.h"
 
 /**

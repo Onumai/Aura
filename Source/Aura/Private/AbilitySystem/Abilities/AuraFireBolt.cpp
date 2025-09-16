@@ -21,7 +21,7 @@ FString UAuraFireBolt::GetDescription(int32 Level)
 			"<Title>FIRE BOLT</>\n\n"
 			
 			// Level
-			"<Small>Level: </><Level>%d</>\n"
+			"<Small>Skill Level: </><Level>%d</>\n"
 			// ManaCost
 			"<Small>Mana Cost: </><ManaCost>%.1f</>\n"
 			//Cooldown
