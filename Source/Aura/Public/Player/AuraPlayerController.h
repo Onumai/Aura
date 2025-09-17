@@ -40,6 +40,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideMagicCircle();
 
+	void SetShowMouseCursorAndForceRefresh(bool bNewValue);
+
 protected:
 	virtual void BeginPlay() override;	
 	virtual void SetupInputComponent() override;

@@ -62,6 +62,16 @@ void AAuraPlayerController::HideMagicCircle()
 	}
 }
 
+void AAuraPlayerController::SetShowMouseCursorAndForceRefresh(bool bNewValue)
+{
+	SetShowMouseCursor(bNewValue);
+	// Workaround: Force the cursor refresh by setting the mouse position to itself.
+	float XMouseLocation;
+	float YMouseLocation;
+	GetMousePosition(XMouseLocation, YMouseLocation);
+	SetMouseLocation(XMouseLocation, YMouseLocation);
+}
+
 void AAuraPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter, bool bBlockedHit, bool bCriticalHit)
 {
 	if (IsValid(TargetCharacter) && DamageTextComponentClass && IsLocalController())
@@ -173,7 +183,15 @@ void AAuraPlayerController::UpdateMagicCircleLocation()
 {
 	if (IsValid(MagicCircle))
 	{
-		MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
+		if (CursorHit.bBlockingHit)
+		{
+			MagicCircle->SetActorHiddenInGame(false);
+			MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
+		}
+		else
+		{
+			MagicCircle->SetActorHiddenInGame(true);
+		}
 	}
 }
 
