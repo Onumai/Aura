@@ -16,6 +16,25 @@ APointCollection::APointCollection()
 	ImmutablePts.Add(Pt_0);
 	SetRootComponent(Pt_0);
 
+	// Another way to implement the Points, I like I like :)
+	/*
+	#define CREATE_AND_SETUP_PT(Pt_X) \
+	Pt_X = CreateDefaultSubobject<USceneComponent>(TEXT(#Pt_X)); \
+	ImmutablePts.Add(Pt_X); \
+	Pt_X->SetupAttachment(GetRootComponent());
+
+	CREATE_AND_SETUP_PT(Pt_1);
+	CREATE_AND_SETUP_PT(Pt_2);
+	CREATE_AND_SETUP_PT(Pt_3);
+	CREATE_AND_SETUP_PT(Pt_4);
+	CREATE_AND_SETUP_PT(Pt_5);
+	CREATE_AND_SETUP_PT(Pt_6);
+	CREATE_AND_SETUP_PT(Pt_7);
+	CREATE_AND_SETUP_PT(Pt_8);
+	CREATE_AND_SETUP_PT(Pt_9);
+	CREATE_AND_SETUP_PT(Pt_10);
+	*/
+	
 	Pt_1 = CreateDefaultSubobject<USceneComponent>("Pt_1");
 	ImmutablePts.Add(Pt_1);
 	Pt_1->SetupAttachment(GetRootComponent());
