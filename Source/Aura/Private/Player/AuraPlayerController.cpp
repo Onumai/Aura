@@ -21,6 +21,7 @@
 #include "UI/Widget/DamageTextComponent.h"
 #include "NiagaraSystem.h"
 #include "Actor/MagicCircle.h"
+#include "Components/DecalComponent.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -40,12 +41,16 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 
 }
 
-void AAuraPlayerController::ShowMagicCircle()
+void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
 {
 	if (!IsValid(MagicCircle))
 	{
 		FVector MagicCircleLocation = CursorHit.ImpactPoint;
 		MagicCircle = GetWorld()->SpawnActor<AMagicCircle>(MagicCircleClass, MagicCircleLocation, FRotator::ZeroRotator);
+		if (DecalMaterial)
+		{
+			MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
+		}
 	}
 }
 
