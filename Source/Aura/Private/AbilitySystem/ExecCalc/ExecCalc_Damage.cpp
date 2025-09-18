@@ -14,6 +14,7 @@
 #include "AbilitySystem/Data/CharacterClassInfo.h"
 #include "Interaction/CombatInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 struct AuraDamageStatics
 {
@@ -216,6 +217,10 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const FGameplayEffectAttributeCaptureDefinition CaptureDef = AuraDamageStatics().TagsToCaptureDefs[ResistanceTag];
 		
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);
+		if (DamageTypeValue <= 0.f)
+		{
+			continue;
+		}
 		
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDef, EvaluationParameters, Resistance);
@@ -225,6 +230,57 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 		if (UAuraAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
 		{
+			// Radial Damage alternative without the need for delgates to send the overriden TakeDamage funktion in AuraBaseCharacter
+			// Will maybe remove the CombatInterface func and delegate
+			// This is an alternative without the tracing UGameplayStatics::ApplyRadialDamageWithFalloff has? Could not get consistent hit without setting the
+			// DamageOrigin.Z up. Maybe something blocks something?
+			
+			FVector TargetLocation = TargetAvatar->GetActorLocation();
+			const FVector OriginLocation = UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle);
+			TargetLocation.Z = OriginLocation.Z;
+
+			const float InnerRadius = UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle);
+			const float OuterRadius = UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle);
+
+			// Guard: OuterRadius has to be greater than InnerRadius
+			if (OuterRadius <= InnerRadius)
+			{
+				// Fallback: kepp full damage (no Falloff)
+				// Alternative: DamageTypeValue = 0.f; (on invalid Parameters no damage)
+			}
+			else
+			{
+				const float SquareDistance   = UKismetMathLibrary::Vector_DistanceSquared(TargetLocation, OriginLocation);
+				const float SquareInnerRadius = FMath::Square(InnerRadius);
+				const float SquareOuterRadius = FMath::Square(OuterRadius);
+
+				// Outside the OuterRadius: no damage
+				if (SquareDistance > SquareOuterRadius)
+				{
+					DamageTypeValue = 0.f;
+					continue;
+				}
+
+				// Inside the InnerRadius: full Damage
+				if (SquareDistance <= SquareInnerRadius)
+				{
+					Damage += DamageTypeValue;
+					// DamageTypeValue nicht nochmal addieren
+					continue;
+				}
+
+				// Between inner and outer Radius: linear Falloff from 100% -> 10%
+				const float FalloffAlpha = UKismetMathLibrary::MapRangeClamped(
+					SquareDistance,
+					SquareInnerRadius,
+					SquareOuterRadius,
+					1.f,   // at inner Border: full damage, can be set lower so only inside the radius is full damage
+					0.1f    // at outer Border: 0.1x Damage, to have not 0 Damage, looks silly; No damage only if it is outside
+				);
+
+				DamageTypeValue *= FalloffAlpha;
+			}
+
 
 			/*
 			DamageTypeValue = UAuraAbilitySystemLibrary::GetRadialDamageWithFalloff(
@@ -245,6 +301,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 			// // on the victim, which will then broadcast OnDamageDelegate
 			// 5. In Lambda, set DamageTypeValue to the damage received from the broadcast
 
+			/*
 			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatar))
 			{
 				CombatInterface->GetOnDamageSignature().AddLambda([&](float DamageAmount)
@@ -253,11 +310,14 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 				});
 			}
 
+			FVector DamageOrigin = UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle);
+			DamageOrigin.Z = 200.f;
+			
 			UGameplayStatics::ApplyRadialDamageWithFalloff(
 				TargetAvatar,
 				DamageTypeValue,
 				0.f,
-				UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
+				DamageOrigin,
 				UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
 				UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
 				1.f,
@@ -265,6 +325,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 				TArray<AActor*>(),
 				SourceAvatar,
 				nullptr);
+			*/
 		}
 		
 		Damage += DamageTypeValue;

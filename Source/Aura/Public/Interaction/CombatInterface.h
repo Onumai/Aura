@@ -6,7 +6,6 @@
 #include "UObject/Interface.h"
 #include "GameplayTagContainer.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
-#include "Character/AuraCharacterBase.h"
 #include "CombatInterface.generated.h"
 
 class UAbilitySystemComponent;
