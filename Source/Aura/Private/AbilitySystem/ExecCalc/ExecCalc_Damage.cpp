@@ -250,19 +250,19 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 			}
 			else
 			{
-				const float SquareDistance   = UKismetMathLibrary::Vector_DistanceSquared(TargetLocation, OriginLocation);
-				const float SquareInnerRadius = FMath::Square(InnerRadius);
-				const float SquareOuterRadius = FMath::Square(OuterRadius);
-
+				const float Distance = UKismetMathLibrary::Vector_Distance(TargetLocation, OriginLocation);
+				//const float SquareInnerRadius = FMath::Square(InnerRadius);
+				//const float SquareOuterRadius = FMath::Square(OuterRadius);
+				
 				// Outside the OuterRadius: no damage
-				if (SquareDistance > SquareOuterRadius)
+				if (Distance > OuterRadius)
 				{
 					DamageTypeValue = 0.f;
 					continue;
 				}
 
 				// Inside the InnerRadius: full Damage
-				if (SquareDistance <= SquareInnerRadius)
+				if (Distance <= InnerRadius)
 				{
 					Damage += DamageTypeValue;
 					// DamageTypeValue nicht nochmal addieren
@@ -271,9 +271,9 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 				// Between inner and outer Radius: linear Falloff from 100% -> 10%
 				const float FalloffAlpha = UKismetMathLibrary::MapRangeClamped(
-					SquareDistance,
-					SquareInnerRadius,
-					SquareOuterRadius,
+					Distance,
+					InnerRadius,
+					OuterRadius,
 					1.f,   // at inner Border: full damage, can be set lower so only inside the radius is full damage
 					0.1f    // at outer Border: 0.1x Damage, to have not 0 Damage, looks silly; No damage only if it is outside
 				);
@@ -281,19 +281,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 				DamageTypeValue *= FalloffAlpha;
 			}
 
-
-			/*
-			DamageTypeValue = UAuraAbilitySystemLibrary::GetRadialDamageWithFalloff(
-				TargetAvatar,
-				DamageTypeValue,
-				0.f,
-				UAuraAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle),
-				UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle),
-				UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle),
-				1.f);
-			*/
-
-			
 			// 1. Override TakeDamage in AuraCharacterBase
 			// 2. Create delegate OnDamageDelegate, broadcast damage received in TakeDamage
 			// 3. Bind lambda to OnDamageDelegate on the victiom here.
