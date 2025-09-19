@@ -11,3 +11,5 @@
 #define ECC_Navigation ECC_GameTraceChannel2
 
 #define ECC_Target ECC_GameTraceChannel3
+
+#define ECC_ExcludePlayers ECC_GameTraceChannel4

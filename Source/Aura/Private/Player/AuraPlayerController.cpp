@@ -41,7 +41,7 @@ void AAuraPlayerController::PlayerTick(float DeltaTime)
 
 }
 
-void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial, float Radius)
 {
 	if (!IsValid(MagicCircle))
 	{
@@ -51,6 +51,7 @@ void AAuraPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
 		{
 			MagicCircle->MagicCircleDecal->SetMaterial(0, DecalMaterial);
 		}
+		MagicCircle->SetTargetingRadius(Radius);
 	}
 }
 
@@ -205,7 +206,8 @@ void AAuraPlayerController::CursorTrace()
 		ThisActor = nullptr;
 		return;
 	}
-	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit); // Perform a trace to get the hit result under the cursor.
+	const ECollisionChannel TraceChannel = IsValid(MagicCircle) ? ECC_ExcludePlayers : ECC_Visibility;
+	GetHitResultUnderCursor(TraceChannel, false, CursorHit); // Perform a trace to get the hit result under the cursor.
 	if (!CursorHit.bBlockingHit) return; // If there is no hit, return early.
 
 	LastActor = ThisActor; // Store the last actor that was hit.

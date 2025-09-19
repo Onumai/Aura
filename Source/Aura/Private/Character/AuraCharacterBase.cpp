@@ -47,6 +47,10 @@ AAuraCharacterBase::AAuraCharacterBase()
 	ManaSiphonNiagaraComponent = CreateDefaultSubobject<UPassiveSpellNiagaraComponent>("ManaSiphonNiagaraComponent");
 	ManaSiphonNiagaraComponent->SetupAttachment(EffectAttachComponent);
 
+	// Disable decals reception on components with collision.
+	GetCapsuleComponent()->SetReceivesDecals(false);
+	GetMesh()->SetReceivesDecals(false);
+	Weapon->SetReceivesDecals(false);
 }
 
 void AAuraCharacterBase::Tick(float DeltaTime)
