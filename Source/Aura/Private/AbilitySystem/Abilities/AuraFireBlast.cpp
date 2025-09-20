@@ -76,6 +76,9 @@ FString UAuraFireBlast::GetNextLevelDescription(int32 Level)
 
 TArray<AAuraFireBall*> UAuraFireBlast::SpawnFireBalls()
 {
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
+	if (!bIsServer) return TArray<AAuraFireBall*>();
+	
 	TArray<AAuraFireBall*> FireBalls;
 	const FVector Forward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
 	const FVector Location = GetAvatarActorFromActorInfo()->GetActorLocation();
