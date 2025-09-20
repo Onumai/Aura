@@ -301,7 +301,7 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 	
 	GameplayTags.Abilities_Fire_FireBolt = UGameplayTagsManager::Get().AddNativeGameplayTag(
 		FName("Abilities.Fire.FireBolt"),
-	FString("FireBolty Ability Tag")
+	FString("FireBolt Ability Tag")
 	);
 
 	GameplayTags.Abilities_Fire_FireBlast = UGameplayTagsManager::Get().AddNativeGameplayTag(
@@ -466,6 +466,15 @@ FString("Type Passive")
 			FName("Player.Block.InputReleased"),
 			FString("Block Input Released callback for input")
 			);
+
+	/*
+	* GameplayCues
+	*/
+	
+	GameplayTags.GameplayCue_FireBlast = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("GameplayCue.FireBlast"),
+	FString("FireBlast GameplayCue Tag")
+	);
 	
 	GameplayTags.bInitialized = true;
 }
