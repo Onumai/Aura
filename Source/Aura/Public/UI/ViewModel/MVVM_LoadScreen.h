@@ -25,6 +25,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "LoadScreen")
 	UMVVM_LoadSlot* GetLoadSlotViewModelByIndex(int32 Index) const;
 
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+	void NewSlotButtonPressed(int32 Slot, const FString& EnteredName);
+
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+	void NewGameButtonPressed(int32 Slot);
+
+	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
+	void SelectSlotButtonPressed(int32 Slot);
+
 private:
 
 	UPROPERTY()
