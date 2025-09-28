@@ -34,6 +34,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LoadScreen")
 	void SelectSlotButtonPressed(int32 Slot);
 
+	void LoadData();
+
 private:
 
 	UPROPERTY()
