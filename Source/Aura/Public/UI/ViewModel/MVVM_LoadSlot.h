@@ -33,6 +33,9 @@ public:
 	UPROPERTY()
 	TEnumAsByte<ESaveSlotStatus> LoadSlotStatus;
 
+	UPROPERTY()
+	FName PlayerStartTag;
+
 	/* Field Notifies */
 	
 	void SetPlayerName(FString InPlayerName);
