@@ -39,4 +39,32 @@ public:
 	
 	UPROPERTY()
 	TEnumAsByte<ESaveSlotStatus> SaveSlotStatus = ESaveSlotStatus::Vacant;
+
+	/* Player */
+
+	UPROPERTY()
+	int32 PlayerLevel = 0;
+
+	UPROPERTY()
+	int32 XP = 0;
+
+	UPROPERTY()
+	int32 SpellPoints = 0;
+
+	UPROPERTY()
+	int32 AttributePoints = 0;
+
+	/* Attributes */
+	
+	UPROPERTY()
+	float Strength = 0;
+
+	UPROPERTY()
+	float Intelligence = 0;
+
+	UPROPERTY()
+	float Resilience = 0;
+
+	UPROPERTY()
+	float Vigor = 0;
 };
