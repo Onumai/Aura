@@ -64,4 +64,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetMaterial();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SaveProgress(const FName& CheckpointTag);
 };
